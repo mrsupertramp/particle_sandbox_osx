@@ -4,8 +4,6 @@
 #include "Particle.h"
 #include "ofxGui.h"
 
-
-
 class ofApp : public ofBaseApp{
 
 	public:
@@ -35,12 +33,15 @@ class ofApp : public ofBaseApp{
 		
 		
 		//-----------------------------------------------------PARAMETER---
+		void setParticlesDrag(float val);
 		void setParticlesCollisionMult(float val);
 		void setParticlesColorDiffMult(float val);
 		void setParticlesBorderX(ofVec2f val);
 		void setParticlesBorderY(ofVec2f val);
 		void setParticlesBorderZ(ofVec2f val);
 		
+		
+		float para_drag_last;	//TODO:alle nach diesem muster
 		float paraCollisionMultOld;
 		float paraColorDiffMultOld;
 		ofVec2f paraBorderXOld;
@@ -48,19 +49,27 @@ class ofApp : public ofBaseApp{
 		ofVec2f paraBorderZOld;
 		
 		//------------------------------------------------GUI--------------
+		ofxFloatSlider para_drag;
+		
 		ofxFloatSlider paraCollisionMult;
 		ofxFloatSlider paraColorDiffMult;
 		ofxVec2Slider paraBorderX;
 		ofxVec2Slider paraBorderY;
 		ofxVec2Slider paraBorderZ;
 		//checkboxes for next generated particle attribubutes
+		ofxToggle attr_border_xyz;
 		ofxToggle attr_collision;
 		ofxToggle attr_spring_prev;
+		ofxToggle attr_connect_next;
 		ofxToggle attr_color_diff;
 		
+		ofxButton overrideAttributes;
+		
+		void setAttributeBorderXYZ(bool &attr_border_xyz);	
 		void setAttributeCollision(bool &attr_collision);	
 		void setAttributeColorDiff(bool &attr_color_diff);
 		void setAttributeSpringPrev(bool &attr_spring_prev);
+		void setAttributeConnectNext(bool &attr_connect_next);
 		
 		ofxPanel gui;
 		
@@ -68,6 +77,9 @@ class ofApp : public ofBaseApp{
 		
 		void updateParameter();
 		int attributesNextParticle;
+		
+		void setAttributesAllParticles();
+		
 		
 		
 		//--------------------------------------------------------------------

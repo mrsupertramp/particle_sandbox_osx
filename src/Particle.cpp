@@ -6,35 +6,32 @@ Particle::Particle(vector <Particle> * pptr, int attributes_, ofVec3f pos_, ofVe
 	prevPtr = NULL;
 	nextPtr = NULL;
 	id = particlesPtr->size();
-	cout << "num particles " << id << endl;
 
 	setPosition(pos_);
 	velocity = vel_;
 	
 	mass = 1.0;
-	
-	drag = 0.9999;
-	
+	drag = 1.0;
 	radius = 0;
-	radiusBirth = 12;
 	
 	attributes = attributes_;
-	cout << "part attri: " << getBit(attributes) << endl;
-	enableAttribute(ATTR_BORDER_XYZ);
-	changeState(STATE_BIRTH);	
+	changeState(STATE_BIRTH);
 	
 	
 	//------------TESTING-------------
+	radiusBirth = 9;
+
+	
 	color = ofColor(0);
-	color.setHsb(ofRandom(0,255),150,ofRandom(220,255),250);
+	color.setHsb(ofRandom(0,255),150, ofRandom(220,255), 250);
 	if (id%3 == 0) {
-		color.setHue(ofRandom(45,50));
-		velocity = ofVec3f(ofRandomf(),0,0);
+		color.setHue(ofRandom(45, 50));
+		velocity = ofVec3f(ofRandomf(), 0, 0);
 	} else if (id%3 == 1){
-		color.setHue(ofRandom(160,165));
-		velocity = ofVec3f(ofRandomf(),0,0);
+		color.setHue(ofRandom(160, 165));
+		velocity = ofVec3f(ofRandomf(), 0, 0);
 	} else {
-		color.setHue(ofRandom(80,82));
+		color.setHue(ofRandom(80, 82));
 	}
 		
 
@@ -51,12 +48,10 @@ void Particle::update()
 	
 	switch (state){
 		case STATE_BIRTH:
-			radius = 0.012*time;
+			radius = 0.011*time;
 			if (time > CONST_TIME_BIRTH) {
 				radius = radiusBirth;
 				mass = ofRandom(0.2,4);
-				//radius = 4*mass + 2;
-				enableAttribute(ATTR_COLLISION);
 				changeState(STATE_IDLE);
 			}
 			break;
@@ -111,8 +106,8 @@ void Particle::draw(ofVec3f lookAt)
 	ofPopMatrix();
 	
 	if (checkAttribute(ATTR_SPRING_PREV)) {
-		ofSetColor(200,0,0);	//rot
-		ofDrawCircle(getPosition(), radius*0.6);
+		//ofSetColor(200,0,0);	//rot
+		//ofDrawCircle(getPosition(), radius*0.6);
 		
 	}
 	
@@ -121,9 +116,10 @@ void Particle::draw(ofVec3f lookAt)
 		ofSetColor(30);
 		
 		//draw arrow with p1,p2,p3 and tip at p2
-		/*
-		float size = min(getPosition().distance(prevPtr->getPosition()) * 0.3, 50);
 		
+		float size = getPosition().distance(prevPtr->getPosition()) * 0.3;
+		if (size > 50)
+			size = 50;
 		ofVec3f dirNorm = prevPtr->getPosition() - getPosition();
 		dirNorm.normalize();
 		
@@ -137,7 +133,7 @@ void Particle::draw(ofVec3f lookAt)
 		ofDrawLine(p1,p2);
 		ofDrawLine(p3,p2);
 		ofDrawLine(getPosition(), p2);
-		*/
+		
 		
 	}	
 }
@@ -173,18 +169,11 @@ void Particle::updateAttributes()
 		}
 	}
 	
-	//pair if distance to another particle is less than  
-	if (checkAttribute(ATTR_CONNECT_PAIR)) {
-	
-	}
-	
-	if (checkAttribute(ATTR_CONNECT_GROUP)) {
-	
-	}
+	//connect to particle if distance is less than  PARAM_CONNECT_DIST
+
 	
 	if (checkAttribute(ATTR_CONNECT_NEXT)) {	//TODO:Namen überdenken
 		int index = getIdClosestParticle(ATTR_CONNECT_NEXT, false, true);
-		
 		float dist = particlesPtr->at(index).getPosition().distance(getPosition());
 		if (dist < PARAM_CONNECT_DIST) {
 			nextPtr = &(particlesPtr->at(index));
@@ -203,10 +192,7 @@ void Particle::updateAttributes()
 		}
 		
 	}
-	if (getPosition().y > 1000) {
-		cout << "mass" << mass << endl;
-	}
-	//
+
 	if (checkAttribute(ATTR_GRAV_PAIR)) {
 		float dist = getPosition().distance(nextPtr->getPosition());
 		if (dist < radius*2) {
@@ -274,6 +260,7 @@ void Particle::updateAttributes()
 	
 }
 
+//--------------------------------------------------------write things------------
 void Particle::changeState(unsigned int newState)
 {
 	//cout << "P" << id << ": changed state to " << newState << endl;
@@ -304,14 +291,18 @@ void Particle::setRadius(float r)
 {
 	radius = r;
 }
-
+void Particle::setDrag(float d)
+{
+	drag = d;
+}
+//------------------------------------------------------read/get things------------
 bool Particle::checkAttribute(int attribute){
 	return attribute & attributes;
 }
 
 int Particle::getIdClosestParticle(int attributes, bool checkNextPtr, bool checkPrevPtr){
 		int index = 0;
-		double dist = 2000.0;
+		double dist = 10000.0;
 		for (unsigned int i=0; i<particlesPtr->size(); ++i){
 			if (particlesPtr->at(i).id != id) {
 				bool checkDist = true;
@@ -337,7 +328,7 @@ int Particle::getIdClosestParticle(int attributes, bool checkNextPtr, bool check
 }
 
 double Particle::getDistanceClosestParticle(int attributes, bool checkNextPtr, bool checkPrevPtr){
-		double dist = 2000.0;
+		double dist = 10000.0;
 		for (unsigned int i=0; i<particlesPtr->size(); ++i){
 			if (particlesPtr->at(i).id != id) {
 				bool checkDist = true;

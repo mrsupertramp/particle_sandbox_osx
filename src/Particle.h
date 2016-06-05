@@ -20,7 +20,7 @@
 #define ATTR_BORDER_CIRCLE		1 << 2
 #define ATTR_CENTRAL_FORCE		1 << 3
 #define ATTR_GRAVITATION		1 << 4
-#define ATTR_CONNECT_PAIR		1 << 5
+//#define ATTR_CONNECT_PAIR		1 << 5
 #define ATTR_CONNECT_NEXT		1 << 6
 #define ATTR_CONNECT_GROUP		1 << 7
 #define ATTR_GRAV_PAIR			1 << 8
@@ -63,6 +63,7 @@ class Particle : public ofNode {
 		
 		
 		void setRadius(float r);
+		void setDrag(float d);
 		double getRadius();
 		
 		ofVec3f velocity;
