@@ -1,6 +1,6 @@
 #include "Particle.h"
 
-Particle::Particle(vector <Particle> * pptr, ofVec3f pos_, ofVec3f vel_)
+Particle::Particle(vector <Particle> * pptr, int attributes_, ofVec3f pos_, ofVec3f vel_)
 {
 	particlesPtr = pptr;
 	prevPtr = NULL;
@@ -8,21 +8,25 @@ Particle::Particle(vector <Particle> * pptr, ofVec3f pos_, ofVec3f vel_)
 	id = particlesPtr->size();
 	cout << "num particles " << id << endl;
 
-	position = pos_;
+	setPosition(pos_);
 	velocity = vel_;
 	
-	drag = 0.995;
+	mass = 1.0;
+	
+	drag = 0.9999;
 	
 	radius = 0;
+	radiusBirth = 12;
 	
-	attributes = 0;
-	enableAttribute(ATTR_BORDER_XY);
+	attributes = attributes_;
+	cout << "part attri: " << getBit(attributes) << endl;
+	enableAttribute(ATTR_BORDER_XYZ);
 	changeState(STATE_BIRTH);	
 	
 	
 	//------------TESTING-------------
 	color = ofColor(0);
-	color.setHsb(ofRandom(0,255),150,ofRandom(220,255),50);
+	color.setHsb(ofRandom(0,255),150,ofRandom(220,255),250);
 	if (id%3 == 0) {
 		color.setHue(ofRandom(45,50));
 		velocity = ofVec3f(ofRandomf(),0,0);
@@ -47,11 +51,11 @@ void Particle::update()
 	
 	switch (state){
 		case STATE_BIRTH:
-			radius = 0.006*time;
+			radius = 0.012*time;
 			if (time > CONST_TIME_BIRTH) {
 				radius = radiusBirth;
-				mass = ofRandomf()*3.0 + 0.2;
-				radius = 4*mass + 2;
+				mass = ofRandom(0.2,4);
+				//radius = 4*mass + 2;
 				enableAttribute(ATTR_COLLISION);
 				changeState(STATE_IDLE);
 			}
@@ -71,72 +75,101 @@ void Particle::update()
 	acceleration = force / mass;
 	velocity += acceleration;
 	velocity *= drag;
-	velocity.limit(CONST_MAX_SPEED);
-	position += velocity;
+	velocity.limit(PARAM_MAX_SPEED);
+	setPosition(getPosition() + velocity);
 	force = ofVec3f(0,0,0);
 }
 
-void Particle::draw()
+void Particle::draw(ofVec3f lookAt)
 {
 	ofFill();
 
 	if (checkAttribute(ATTR_CONNECT_NEXT)) {
 		ofSetColor(0,100,255); //blau
-		ofDrawCircle(position, radius);
+		ofDrawCircle(getPosition(), radius);
 	}
 
+	ofPushMatrix();
 	ofSetColor(color);
-	ofDrawCircle(position, radius);
+	
+	ofTranslate(getPosition());
+	
+	//ofVec3f normal = -getPosition();
+	ofVec3f normal = lookAt;
+	normal.normalize();
+	
+	float rotationAmount;
+	ofVec3f rotationAngle;
+	ofQuaternion rotation;
+	
+	ofVec3f axis(0, 0, 1);
+	rotation.makeRotate(axis, normal);
+	rotation.getRotate(rotationAmount, rotationAngle);
+	ofRotate(rotationAmount, rotationAngle.x, rotationAngle.y, rotationAngle.z);
+	ofDrawCircle(ofVec3f(0,0,0), radius);
+	
+	ofPopMatrix();
 	
 	if (checkAttribute(ATTR_SPRING_PREV)) {
 		ofSetColor(200,0,0);	//rot
-		ofDrawCircle(position, radius*0.6);
+		ofDrawCircle(getPosition(), radius*0.6);
+		
 	}
 	
 	
 	if (prevPtr != NULL) {
 		ofSetColor(30);
 		
-		/*
-		float size = min(position.distance(prevPtr->position) * 0.3,50);
 		//draw arrow with p1,p2,p3 and tip at p2
+		/*
+		float size = min(getPosition().distance(prevPtr->getPosition()) * 0.3, 50);
 		
-		ofVec3f dirNorm = prevPtr->position - position;
+		ofVec3f dirNorm = prevPtr->getPosition() - getPosition();
 		dirNorm.normalize();
 		
 		ofVec3f toTheLeft = dirNorm.getRotated( 90, ofVec3f( 0, 0, 1 ) );
 		ofVec3f toTheRight = dirNorm.getRotated( -90, ofVec3f( 0, 0, 1 ) );
 		
-		ofVec3f p1 = prevPtr->position - dirNorm*radius - dirNorm*size*0.7 + toTheRight*size*0.3;
-		ofVec3f p2 = prevPtr->position - dirNorm*radius;
-		ofVec3f p3 = prevPtr->position - dirNorm*radius - dirNorm*size*0.7 + toTheLeft*size*0.3;
+		ofVec3f p1 = prevPtr->getPosition() - dirNorm*radius - dirNorm*size*0.7 + toTheRight*size*0.3;
+		ofVec3f p2 = prevPtr->getPosition() - dirNorm*radius;
+		ofVec3f p3 = prevPtr->getPosition() - dirNorm*radius - dirNorm*size*0.7 + toTheLeft*size*0.3;
 		
 		ofDrawLine(p1,p2);
 		ofDrawLine(p3,p2);
-		ofDrawLine(position, p2);
+		ofDrawLine(getPosition(), p2);
 		*/
+		
 	}	
 }
+
+void Particle::draw()
+{
+	draw(ofVec3f(0,0,0));
+}
+
 
 //---------------------------------------------------------------------------------------------
 void Particle::updateAttributes()
 {
-	ofSetColor(0);
 	//mirror at borders
-	ofVec3f borderMin(ofGetWidth()/2-300,ofGetHeight()/2-100,0);
-	ofVec3f borderMax(ofGetWidth()/2+300,ofGetHeight()/2+100,0);
-	if (checkAttribute(ATTR_BORDER_XY)) {
-		if (position.x < borderMin.x) {
-			force.x += CONST_BORDER_MULT * (borderMin.x - position.x);
+	if (checkAttribute(ATTR_BORDER_XYZ)) {
+		if (getPosition().x < PARAM_BORDER_X.x) {
+			force.x += PARAM_BORDER_MULT * (PARAM_BORDER_X.x - getPosition().x);
 		}
-		if (position.x > borderMax.x) {
-			force.x += CONST_BORDER_MULT * (borderMax.x - position.x);
+		if (getPosition().x > PARAM_BORDER_X.y) {
+			force.x += PARAM_BORDER_MULT * (PARAM_BORDER_X.y - getPosition().x);
 		}
-		if (position.y < borderMin.y) {
-			force.y += CONST_BORDER_MULT * (borderMin.y - position.y);
+		if (getPosition().y < PARAM_BORDER_Y.x) {
+			force.y += PARAM_BORDER_MULT * (PARAM_BORDER_Y.x - getPosition().y);
 		}
-		if (position.y > borderMax.y) {
-			force.y += CONST_BORDER_MULT * (borderMax.y - position.y);
+		if (getPosition().y > PARAM_BORDER_Y.y) {
+			force.y += PARAM_BORDER_MULT * (PARAM_BORDER_Y.y - getPosition().y);
+		}
+		if (getPosition().z < PARAM_BORDER_Z.x) {
+			force.z += PARAM_BORDER_MULT * (PARAM_BORDER_Z.x - getPosition().z);
+		}
+		if (getPosition().z > PARAM_BORDER_Z.y) {
+			force.z += PARAM_BORDER_MULT * (PARAM_BORDER_Z.y - getPosition().z);
 		}
 	}
 	
@@ -152,11 +185,11 @@ void Particle::updateAttributes()
 	if (checkAttribute(ATTR_CONNECT_NEXT)) {	//TODO:Namen überdenken
 		int index = getIdClosestParticle(ATTR_CONNECT_NEXT, false, true);
 		
-		float dist = particlesPtr->at(index).position.distance(position);
-		if (dist < CONST_CONNECT_DIST) {
+		float dist = particlesPtr->at(index).getPosition().distance(getPosition());
+		if (dist < PARAM_CONNECT_DIST) {
 			nextPtr = &(particlesPtr->at(index));
 			nextPtr->prevPtr = &(particlesPtr->at(id));
-			nextPtr->drag = 0.999;
+			nextPtr->drag = 0.9999;
 			nextPtr->mass = 5.0;
 			
 			disableAttribute(ATTR_CONNECT_NEXT);
@@ -170,20 +203,22 @@ void Particle::updateAttributes()
 		}
 		
 	}
-	
+	if (getPosition().y > 1000) {
+		cout << "mass" << mass << endl;
+	}
 	//
 	if (checkAttribute(ATTR_GRAV_PAIR)) {
-		float dist = position.distance(nextPtr->position);
+		float dist = getPosition().distance(nextPtr->getPosition());
 		if (dist < radius*2) {
-			force -= 0.1 * (nextPtr->position - position);
+			force -= 0.1 * (nextPtr->getPosition() - getPosition());
 		} else if (dist > radius*10) {
-			force += 0.0005 * (nextPtr->position - position);
+			force += 0.0005 * (nextPtr->getPosition() - getPosition());
 		}
 	}
 	
 	if (checkAttribute(ATTR_SPRING_PREV)) {
 		if (prevPtr != NULL) {
-			force += 0.2 * (prevPtr->position - position);
+			force += 0.2 * (prevPtr->getPosition() - getPosition());
 		}
 	}
 	
@@ -207,19 +242,28 @@ void Particle::updateAttributes()
 	
 	if (checkAttribute(ATTR_COLLISION)) {
 		for (unsigned int i=id+1; i<particlesPtr->size(); ++i){
-			float dist = particlesPtr->at(i).position.distance(position);
+			float dist = particlesPtr->at(i).getPosition().distance(getPosition());
 			if (dist < particlesPtr->at(i).getRadius() + radius) {
-				force -= CONST_COLLISION_MULT * (particlesPtr->at(i).position - position);
-				particlesPtr->at(i).force += CONST_COLLISION_MULT * (particlesPtr->at(i).position - position);
+				force -= PARAM_COLLISION_MULT * (particlesPtr->at(i).getPosition() - getPosition());
+				particlesPtr->at(i).force += PARAM_COLLISION_MULT * (particlesPtr->at(i).getPosition() - getPosition());
 			}
-			
+			//TODO: eine for schleife für alle attributes die es brauchen
+			//		Attributes nochmal trennen zwischen fremdeinwirkung und selbstwirkung
+
+		}
+	}
+	if (checkAttribute(ATTR_COLOR_DIFF)) {
+		for (unsigned int i=id+1; i<particlesPtr->size(); ++i){
+			//TODO: eine for schleife für alle attributes die es brauchen
+			//		Attributes nochmal trennen zwischen fremdeinwirkung und selbstwirkung
 			double colDiff = abs( color.getHue()-particlesPtr->at(i).color.getHue() );
 			if (colDiff > 255/2) {
 				colDiff -= abs(colDiff-255);
 			}
 			colDiff = max(1.0, colDiff);
-			double forceMag = CONST_COLOR_DIFF_MULT / pow(colDiff,2);
-			ofVec3f dir = position - particlesPtr->at(i).position;
+			double forceMag = PARAM_COLOR_DIFF_MULT / pow(colDiff,2);
+
+			ofVec3f dir = getPosition() - particlesPtr->at(i).getPosition();
 			force -= forceMag * dir.getNormalized();
 			particlesPtr->at(i).force += forceMag * dir.getNormalized();
 		}
@@ -237,17 +281,28 @@ void Particle::changeState(unsigned int newState)
 	state = newState;
 }
 
+void Particle::setAttributes(int newAttributes)
+{
+	attributes = newAttributes;
+}
 void Particle::enableAttribute(int attribute)
 {
 	attributes |= attribute;
-	//cout << "P" << id << ": enabled attr" << attribute << endl;
 }
-
 void Particle::disableAttribute(int attribute)
 {
-	//attributes &= ~(1 << attribute);
 	attributes &= ~attribute;
-	//cout << "P" << id << ": disabled attr" << attribute << endl;
+}
+void Particle::toggleAttribute(int attribute)
+{
+	cout << getBit(attributes) << endl;
+	attributes ^= (-attribute ^ attributes) & (1 << attribute);
+	cout << getBit(attributes) << endl;
+}
+
+void Particle::setRadius(float r)
+{
+	radius = r;
 }
 
 bool Particle::checkAttribute(int attribute){
@@ -269,7 +324,7 @@ int Particle::getIdClosestParticle(int attributes, bool checkNextPtr, bool check
 			    }
 			    
 			    if (checkDist) {
-					float newDist = particlesPtr->at(i).position.distance(position);
+					float newDist = particlesPtr->at(i).getPosition().distance(getPosition());
 					if (newDist < dist) {
 						dist = newDist;
 						index = i;
@@ -294,7 +349,7 @@ double Particle::getDistanceClosestParticle(int attributes, bool checkNextPtr, b
 			    	checkDist &= (particlesPtr->at(i).prevPtr == NULL);
 			    }
 			    if (checkDist) {
-					float newDist = particlesPtr->at(i).position.distance(position);
+					float newDist = particlesPtr->at(i).getPosition().distance(getPosition());
 					if (newDist < dist) {
 						dist = newDist;
 					}
@@ -308,6 +363,8 @@ double Particle::getDistanceClosestParticle(int attributes, bool checkNextPtr, b
 double Particle::getRadius(){
 	return radius;
 }
+
+
 
 string Particle::getBit(int k)
 {

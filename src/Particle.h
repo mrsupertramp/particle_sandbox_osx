@@ -3,6 +3,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofNode.h"
 
 //ein partikel befindet sich in EINEM state
 //kann als aufgabe interpretiert werden. wenn keine aufgabe vorhanden dann idle.
@@ -15,7 +16,7 @@
 
 // ein Partikel kann mehrere Attribute besitzen
 #define ATTR_DRAG				1 << 0	// TODO: TODO: TODO: KOMMENTARE!!!!!!!
-#define ATTR_BORDER_XY			1 << 1
+#define ATTR_BORDER_XYZ			1 << 1
 #define ATTR_BORDER_CIRCLE		1 << 2
 #define ATTR_CENTRAL_FORCE		1 << 3
 #define ATTR_GRAVITATION		1 << 4
@@ -29,45 +30,62 @@
 #define ATTR_SPRING				1 << 12
 #define ATTR_INVISIBLE			1 << 13
 #define ATTR_COLLISION			1 << 14
-//#define ATTR_DRAW_LINE_DIST
-//#define ATTR_DRAW_LINE_NEXT
-//#define ATTR_DRAW_LINE_PREV
+#define ATTR_COLOR_DIFF			1 << 15
+
+#define ATTR_DRAW_LINE_DIST		1 << 16
+#define ATTR_DRAW_LINE_NEXT		1 << 17
+#define ATTR_DRAW_LINE_PREV		1 << 18
 
 
-//TODO: seperate physics/behavior attributes and drawing attributes
 
-#define NUM_ATTRIBUTES			15
+//TODO: Oberklasse Swarm
+
+#define NUM_ATTRIBUTES			19
 
 #define CONST_TIME_BIRTH		1000
 
 
-class Particle{
+class Particle : public ofNode {
 	public:
-		Particle(vector <Particle> * pptr, ofVec3f pos_, ofVec3f vel_);
+		Particle(vector <Particle> * pptr, int attributes_, ofVec3f pos_, ofVec3f vel_);
 		void setup();
 		void update();
 		void draw();
+		void draw(ofVec3f lookAt);
 		
 		void changeState(unsigned int newState);
 		
-		void enableAttribute(int attribute);
+		void enableAttribute(int attribute); 
 		void disableAttribute(int attribute);
-		void setAttributes(int attributes_);
+		void setAttributes(int newAttributes);
+		void setAttribute(int attribute);
+		void toggleAttribute(int attribute);
 		
+		
+		void setRadius(float r);
 		double getRadius();
 		
-		ofVec3f position;
 		ofVec3f velocity;
 		ofVec3f acceleration;
 		ofVec3f force;
 		
 		unsigned int id;
 		
-		float CONST_CONNECT_DIST = 30;
-		float CONST_MAX_SPEED = 10;
-		float CONST_BORDER_MULT = 0.4;
-		float CONST_COLOR_DIFF_MULT = 0.0;
-		double CONST_COLLISION_MULT = 0.0;
+		float 		PARAM_CONNECT_DIST 		= 30;
+		float 		PARAM_MAX_SPEED 		= 10;
+		float 		PARAM_BORDER_MULT 		= 0.4;
+		float 		PARAM_COLOR_DIFF_MULT 	= 0.0;
+		double 		PARAM_COLLISION_MULT 	= 0.0;
+		
+		ofVec2f PARAM_BORDER_X = ofVec2f(-100,100);
+		ofVec2f PARAM_BORDER_Y = ofVec2f(-100,100);
+		ofVec2f PARAM_BORDER_Z = ofVec2f(-100,100);
+		
+		
+		ofColor color;
+		
+		string getBit(int k);
+		
 	
 	private:
 		void updateAttributes();
@@ -91,19 +109,16 @@ class Particle{
 		
 		double distanceToClosestParticle = -1;
 		
-		float drag = 1.0;
-		float mass = 1.0;
+		float drag;
+		float mass;
 		
 		
-		bool grouped = false;
+		bool grouped;
 		
 		//appearance
 		float radius;
-		float radiusBirth = 8;
-		
-		ofColor color;
-		
-		string getBit(int k);
+		float radiusBirth;
+						
 		
 				
 };
