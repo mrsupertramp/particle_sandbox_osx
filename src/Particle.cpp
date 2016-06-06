@@ -15,8 +15,9 @@ Particle::Particle(vector <Particle> * pptr, int attributes_, ofVec3f pos_, ofVe
 	radius = 0;
 	
 	attributes = attributes_;
-	changeState(STATE_BIRTH);
-	
+	//changeState(STATE_BIRTH);
+	changeState(STATE_IDLE);
+	radius = 9;
 	
 	//------------TESTING-------------
 	radiusBirth = 9;
@@ -42,6 +43,12 @@ void Particle::setup()
 
 }
 
+void Particle::resetLinks()
+{
+	prevPtr = NULL;
+	nextPtr = NULL;
+}
+
 void Particle::update()
 {
 	unsigned int time = ofGetElapsedTimeMillis() - tLastStateChange;
@@ -51,12 +58,12 @@ void Particle::update()
 			radius = 0.011*time;
 			if (time > CONST_TIME_BIRTH) {
 				radius = radiusBirth;
-				mass = ofRandom(0.2,4);
+				mass = ofRandom(0.2, 4);
 				changeState(STATE_IDLE);
 			}
 			break;
 		case STATE_IDLE:
-			
+			updateAttributes();
 			break;
 		case STATE_PAIRING:
 			
@@ -64,9 +71,9 @@ void Particle::update()
 			break;
 			
 	}
-	
-	updateAttributes();
-	
+	if (radius < radiusBirth && radius > 0.0) {
+		cout << "id" << id << "  state " << state << endl;
+	}
 	acceleration = force / mass;
 	velocity += acceleration;
 	velocity *= drag;
@@ -79,17 +86,11 @@ void Particle::draw(ofVec3f lookAt)
 {
 	ofFill();
 
-	if (checkAttribute(ATTR_CONNECT_NEXT)) {
-		ofSetColor(0,100,255); //blau
-		ofDrawCircle(getPosition(), radius);
-	}
-
 	ofPushMatrix();
 	ofSetColor(color);
 	
 	ofTranslate(getPosition());
 	
-	//ofVec3f normal = -getPosition();
 	ofVec3f normal = lookAt;
 	normal.normalize();
 	
@@ -103,14 +104,14 @@ void Particle::draw(ofVec3f lookAt)
 	ofRotate(rotationAmount, rotationAngle.x, rotationAngle.y, rotationAngle.z);
 	ofDrawCircle(ofVec3f(0,0,0), radius);
 	
-	ofPopMatrix();
+
 	
 	if (checkAttribute(ATTR_SPRING_PREV)) {
 		//ofSetColor(200,0,0);	//rot
 		//ofDrawCircle(getPosition(), radius*0.6);
 		
 	}
-	
+	ofPopMatrix();
 	
 	if (prevPtr != NULL) {
 		ofSetColor(30);
@@ -134,8 +135,10 @@ void Particle::draw(ofVec3f lookAt)
 		ofDrawLine(p3,p2);
 		ofDrawLine(getPosition(), p2);
 		
+		//ofDrawLine(getPosition(),prevPtr->getPosition());
 		
-	}	
+	}
+	
 }
 
 void Particle::draw()
@@ -178,8 +181,8 @@ void Particle::updateAttributes()
 		if (dist < PARAM_CONNECT_DIST) {
 			nextPtr = &(particlesPtr->at(index));
 			nextPtr->prevPtr = &(particlesPtr->at(id));
-			nextPtr->drag = 0.9999;
-			nextPtr->mass = 5.0;
+			//nextPtr->drag = 0.9999;
+			//nextPtr->mass = 5.0;
 			
 			disableAttribute(ATTR_CONNECT_NEXT);
 			enableAttribute(ATTR_SPRING_NEXT);
@@ -213,8 +216,6 @@ void Particle::updateAttributes()
 			//force += 0.9 * (nextPtr->position - position);
 		}
 	}
-	
-	
 	
 	//new attribute
 	if (nextPtr != NULL) {
@@ -355,7 +356,11 @@ double Particle::getRadius(){
 	return radius;
 }
 
-
+int Particle::getState()
+{
+	return state;
+}
+//----------------------------------------------------------------------------------------
 
 string Particle::getBit(int k)
 {

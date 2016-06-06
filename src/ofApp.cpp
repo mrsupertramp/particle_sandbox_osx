@@ -122,7 +122,9 @@ void ofApp::setAttributeConnectNext(bool &attr_connect_next)
 
 void ofApp::setAttributesAllParticles()
 {
+	
 	for (unsigned int i=0; i<particles.size(); ++i){
+		particles[i].resetLinks();	//TODO: make this line not necessary
 		particles[i].setAttributes(attributesNextParticle);
 	}
 }

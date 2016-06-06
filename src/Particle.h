@@ -49,6 +49,7 @@ class Particle : public ofNode {
 	public:
 		Particle(vector <Particle> * pptr, int attributes_, ofVec3f pos_, ofVec3f vel_);
 		void setup();
+		void resetLinks();
 		void update();
 		void draw();
 		void draw(ofVec3f lookAt);
@@ -61,10 +62,12 @@ class Particle : public ofNode {
 		void setAttribute(int attribute);
 		void toggleAttribute(int attribute);
 		
+		bool checkAttribute(int attribute);
 		
 		void setRadius(float r);
 		void setDrag(float d);
 		double getRadius();
+		int getState();
 		
 		ofVec3f velocity;
 		ofVec3f acceleration;
@@ -90,9 +93,6 @@ class Particle : public ofNode {
 	
 	private:
 		void updateAttributes();
-		
-		bool checkAttribute(int attribute);
-		
 		
 		int getIdClosestParticle(int attributes, bool checkNextPtr=false, bool checkPrevPtr=false);
 		double getDistanceClosestParticle(int attributes, bool checkNextPtr=false, bool checkPrev=false);
