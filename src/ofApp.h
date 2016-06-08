@@ -1,3 +1,7 @@
+/*
+COPYRIGHT ENRICO STEINFELD. ALL RIGHTS RESERVED
+*/
+
 #pragma once
 
 #include "ofMain.h"
@@ -34,14 +38,19 @@ class ofApp : public ofBaseApp{
 		
 		//-----------------------------------------------------PARAMETER---
 		void setParticlesDrag(float val);
+		void setParticlesMass(float val);
+		void setParticlesSpringStiffness(float val);
 		void setParticlesCollisionMult(float val);
 		void setParticlesColorDiffMult(float val);
 		void setParticlesBorderX(ofVec2f val);
 		void setParticlesBorderY(ofVec2f val);
 		void setParticlesBorderZ(ofVec2f val);
 		
+		void drawBorders();
 		
 		float para_drag_last;	//TODO:alle nach diesem muster
+		float para_mass_last;
+		float para_spring_stiffness_last;
 		float paraCollisionMultOld;
 		float paraColorDiffMultOld;
 		ofVec2f paraBorderXOld;
@@ -50,6 +59,8 @@ class ofApp : public ofBaseApp{
 		
 		//------------------------------------------------GUI--------------
 		ofxFloatSlider para_drag;
+		ofxFloatSlider para_mass;
+		ofxFloatSlider para_spring_stiffness;
 		
 		ofxFloatSlider paraCollisionMult;
 		ofxFloatSlider paraColorDiffMult;
@@ -61,6 +72,7 @@ class ofApp : public ofBaseApp{
 		ofxToggle attr_collision;
 		ofxToggle attr_spring_prev;
 		ofxToggle attr_connect_next;
+		ofxToggle attr_connect_prev;
 		ofxToggle attr_color_diff;
 		
 		ofxButton overrideAttributes;
@@ -70,6 +82,7 @@ class ofApp : public ofBaseApp{
 		void setAttributeColorDiff(bool &attr_color_diff);
 		void setAttributeSpringPrev(bool &attr_spring_prev);
 		void setAttributeConnectNext(bool &attr_connect_next);
+		void setAttributeConnectPrev(bool &attr_connect_prev);
 		
 		ofxPanel gui;
 		

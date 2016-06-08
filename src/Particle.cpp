@@ -1,3 +1,7 @@
+/*
+COPYRIGHT ENRICO STEINFELD. ALL RIGHTS RESERVED
+*/
+
 #include "Particle.h"
 
 Particle::Particle(vector <Particle> * pptr, int attributes_, ofVec3f pos_, ofVec3f vel_)
@@ -12,6 +16,8 @@ Particle::Particle(vector <Particle> * pptr, int attributes_, ofVec3f pos_, ofVe
 	
 	mass = 1.0;
 	drag = 1.0;
+	springStiffness = 0.2;
+	
 	radius = 0;
 	
 	attributes = attributes_;
@@ -104,12 +110,9 @@ void Particle::draw(ofVec3f lookAt)
 	ofRotate(rotationAmount, rotationAngle.x, rotationAngle.y, rotationAngle.z);
 	ofDrawCircle(ofVec3f(0,0,0), radius);
 	
-
-	
 	if (checkAttribute(ATTR_SPRING_PREV)) {
 		//ofSetColor(200,0,0);	//rot
 		//ofDrawCircle(getPosition(), radius*0.6);
-		
 	}
 	ofPopMatrix();
 	
@@ -176,7 +179,7 @@ void Particle::updateAttributes()
 
 	
 	if (checkAttribute(ATTR_CONNECT_NEXT)) {	//TODO:Namen überdenken
-		int index = getIdClosestParticle(ATTR_CONNECT_NEXT, false, true);
+		int index = getIdClosestParticle(ATTR_CONNECT_PREV, false, true);
 		float dist = particlesPtr->at(index).getPosition().distance(getPosition());
 		if (dist < PARAM_CONNECT_DIST) {
 			nextPtr = &(particlesPtr->at(index));
@@ -185,9 +188,10 @@ void Particle::updateAttributes()
 			//nextPtr->mass = 5.0;
 			
 			disableAttribute(ATTR_CONNECT_NEXT);
-			enableAttribute(ATTR_SPRING_NEXT);
+			//enableAttribute(ATTR_SPRING_NEXT);
 			
 			nextPtr->enableAttribute(ATTR_SPRING_PREV);
+			nextPtr->disableAttribute(ATTR_CONNECT_PREV);
 			
 			nextPtr->changeState(STATE_PAIRING);
 			changeState(STATE_PAIRING);
@@ -195,7 +199,7 @@ void Particle::updateAttributes()
 		}
 		
 	}
-
+	
 	if (checkAttribute(ATTR_GRAV_PAIR)) {
 		float dist = getPosition().distance(nextPtr->getPosition());
 		if (dist < radius*2) {
@@ -207,13 +211,13 @@ void Particle::updateAttributes()
 	
 	if (checkAttribute(ATTR_SPRING_PREV)) {
 		if (prevPtr != NULL) {
-			force += 0.2 * (prevPtr->getPosition() - getPosition());
+			force += springStiffness * (prevPtr->getPosition() - getPosition());
 		}
 	}
 	
 	if (checkAttribute(ATTR_SPRING_NEXT)) {
 		if (nextPtr != NULL) {
-			//force += 0.9 * (nextPtr->position - position);
+			force += springStiffness * (nextPtr->getPosition() - getPosition());
 		}
 	}
 	
@@ -236,7 +240,6 @@ void Particle::updateAttributes()
 			}
 			//TODO: eine for schleife für alle attributes die es brauchen
 			//		Attributes nochmal trennen zwischen fremdeinwirkung und selbstwirkung
-
 		}
 	}
 	if (checkAttribute(ATTR_COLOR_DIFF)) {
@@ -249,7 +252,7 @@ void Particle::updateAttributes()
 			}
 			colDiff = max(1.0, colDiff);
 			double forceMag = PARAM_COLOR_DIFF_MULT / pow(colDiff,2);
-
+			
 			ofVec3f dir = getPosition() - particlesPtr->at(i).getPosition();
 			force -= forceMag * dir.getNormalized();
 			particlesPtr->at(i).force += forceMag * dir.getNormalized();
@@ -261,7 +264,7 @@ void Particle::updateAttributes()
 	
 }
 
-//--------------------------------------------------------write things------------
+//--------------------------------------------------------write things-----------------------------
 void Particle::changeState(unsigned int newState)
 {
 	//cout << "P" << id << ": changed state to " << newState << endl;
@@ -288,26 +291,47 @@ void Particle::toggleAttribute(int attribute)
 	cout << getBit(attributes) << endl;
 }
 
-void Particle::setRadius(float r)
+void Particle::setRadius(float val)
 {
-	radius = r;
+	radius = val;
 }
-void Particle::setDrag(float d)
+void Particle::setDrag(float val)
 {
-	drag = d;
+	if (checkAttribute(ATTR_SPRING_PREV))
+	{
+		drag = val;
+	}
 }
+void Particle::setMass(float val)
+{
+	mass = val;
+}
+void Particle::setSpringStiffness(float val)
+{
+	springStiffness = val;
+}
+
 //------------------------------------------------------read/get things------------
 bool Particle::checkAttribute(int attribute){
 	return attribute & attributes;
 }
+bool Particle::checkAttributes(int attributes_)
+{
+	bool check = false;
+	for (unsigned int i=0; i<NUM_ATTRIBUTES; ++i){
+		check &= ((1<<i) & attributes_) & attributes;
+	}
+	return check;
+}
 
-int Particle::getIdClosestParticle(int attributes, bool checkNextPtr, bool checkPrevPtr){
+int Particle::getIdClosestParticle(int attributes_, bool checkNextPtr, bool checkPrevPtr){
 		int index = 0;
 		double dist = 10000.0;
-		for (unsigned int i=0; i<particlesPtr->size(); ++i){
-			if (particlesPtr->at(i).id != id) {
+		for (unsigned int i=0; i<particlesPtr->size(); ++i){			
+			if (particlesPtr->at(i).id != id) {				
 				bool checkDist = true;
-			    checkDist &= particlesPtr->at(i).checkAttribute(attributes);
+			    checkDist &= particlesPtr->at(i).checkAttributes(attributes_);
+				
 			    if (checkNextPtr) {
 			    	checkDist &= (particlesPtr->at(i).nextPtr == NULL);
 			    }
@@ -328,12 +352,12 @@ int Particle::getIdClosestParticle(int attributes, bool checkNextPtr, bool check
 		return index;
 }
 
-double Particle::getDistanceClosestParticle(int attributes, bool checkNextPtr, bool checkPrevPtr){
+double Particle::getDistanceClosestParticle(int attributes_, bool checkNextPtr, bool checkPrevPtr){
 		double dist = 10000.0;
 		for (unsigned int i=0; i<particlesPtr->size(); ++i){
 			if (particlesPtr->at(i).id != id) {
 				bool checkDist = true;
-			    checkDist &= particlesPtr->at(i).checkAttribute(attributes);
+			    checkDist &= particlesPtr->at(i).checkAttributes(attributes_);
 			    if (checkNextPtr) {
 			    	checkDist &= (particlesPtr->at(i).nextPtr == NULL);
 			    }

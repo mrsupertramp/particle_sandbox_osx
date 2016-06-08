@@ -1,4 +1,6 @@
-
+/*
+COPYRIGHT ENRICO STEINFELD. ALL RIGHTS RESERVED
+*/
 
 #pragma once
 
@@ -22,25 +24,26 @@
 #define ATTR_GRAVITATION		1 << 4
 //#define ATTR_CONNECT_PAIR		1 << 5
 #define ATTR_CONNECT_NEXT		1 << 6
-#define ATTR_CONNECT_GROUP		1 << 7
-#define ATTR_GRAV_PAIR			1 << 8
-#define ATTR_GRAV_GROUP			1 << 9
-#define ATTR_SPRING_NEXT		1 << 10
-#define ATTR_SPRING_PREV		1 << 11
-#define ATTR_SPRING				1 << 12
-#define ATTR_INVISIBLE			1 << 13
-#define ATTR_COLLISION			1 << 14
-#define ATTR_COLOR_DIFF			1 << 15
+#define ATTR_CONNECT_PREV		1 << 7
+#define ATTR_CONNECT_GROUP		1 << 8
+#define ATTR_GRAV_PAIR			1 << 9
+#define ATTR_GRAV_GROUP			1 << 10
+#define ATTR_SPRING_NEXT		1 << 11
+#define ATTR_SPRING_PREV		1 << 12
+#define ATTR_SPRING				1 << 13
+#define ATTR_INVISIBLE			1 << 14
+#define ATTR_COLLISION			1 << 15
+#define ATTR_COLOR_DIFF			1 << 16
 
-#define ATTR_DRAW_LINE_DIST		1 << 16
-#define ATTR_DRAW_LINE_NEXT		1 << 17
-#define ATTR_DRAW_LINE_PREV		1 << 18
+#define ATTR_DRAW_LINE_DIST		1 << 17
+#define ATTR_DRAW_LINE_NEXT		1 << 18
+#define ATTR_DRAW_LINE_PREV		1 << 19
 
 
 
 //TODO: Oberklasse Swarm
 
-#define NUM_ATTRIBUTES			19
+#define NUM_ATTRIBUTES			20
 
 #define CONST_TIME_BIRTH		1000
 
@@ -63,9 +66,13 @@ class Particle : public ofNode {
 		void toggleAttribute(int attribute);
 		
 		bool checkAttribute(int attribute);
+		bool checkAttributes(int attributes_);
 		
-		void setRadius(float r);
-		void setDrag(float d);
+		void setRadius(float val);
+		void setDrag(float val);
+		void setMass(float val);
+		void setSpringStiffness(float val);
+		
 		double getRadius();
 		int getState();
 		
@@ -84,7 +91,7 @@ class Particle : public ofNode {
 		ofVec2f PARAM_BORDER_X = ofVec2f(-100,100);
 		ofVec2f PARAM_BORDER_Y = ofVec2f(-100,100);
 		ofVec2f PARAM_BORDER_Z = ofVec2f(-100,100);
-		
+
 		
 		ofColor color;
 		
@@ -94,8 +101,8 @@ class Particle : public ofNode {
 	private:
 		void updateAttributes();
 		
-		int getIdClosestParticle(int attributes, bool checkNextPtr=false, bool checkPrevPtr=false);
-		double getDistanceClosestParticle(int attributes, bool checkNextPtr=false, bool checkPrev=false);
+		int getIdClosestParticle(int attributes_, bool checkNextPtr=false, bool checkPrevPtr=false);
+		double getDistanceClosestParticle(int attributes_, bool checkNextPtr=false, bool checkPrev=false);
 		
 		vector <Particle>* particlesPtr;
 		
@@ -112,6 +119,8 @@ class Particle : public ofNode {
 		
 		float drag;
 		float mass;
+		
+		float springStiffness;
 		
 		
 		bool grouped;
