@@ -17,6 +17,7 @@ Particle::Particle(vector <Particle> * pptr, int attributes_, ofVec3f pos_, ofVe
 	mass = 1.0;
 	drag = 1.0;
 	springStiffness = 0.2;
+	springDamping = 0.99;
 	
 	radius = 0;
 	
@@ -27,7 +28,6 @@ Particle::Particle(vector <Particle> * pptr, int attributes_, ofVec3f pos_, ofVe
 	
 	//------------TESTING-------------
 	radiusBirth = 9;
-
 	
 	color = ofColor(0);
 	color.setHsb(ofRandom(0,255),150, ofRandom(220,255), 250);
@@ -64,7 +64,6 @@ void Particle::update()
 			radius = 0.011*time;
 			if (time > CONST_TIME_BIRTH) {
 				radius = radiusBirth;
-				mass = ofRandom(0.2, 4);
 				changeState(STATE_IDLE);
 			}
 			break;
@@ -74,14 +73,19 @@ void Particle::update()
 		case STATE_PAIRING:
 			
 			changeState(STATE_IDLE);
-			break;
-			
+			break;	
 	}
 	if (radius < radiusBirth && radius > 0.0) {
 		cout << "id" << id << "  state " << state << endl;
 	}
 	acceleration = force / mass;
 	velocity += acceleration;
+	
+	if (checkAttribute(ATTR_SPRING_NEXT | ATTR_SPRING_PREV))
+	{
+		velocity *= springDamping;
+	}
+	
 	velocity *= drag;
 	velocity.limit(PARAM_MAX_SPEED);
 	setPosition(getPosition() + velocity);
@@ -149,7 +153,6 @@ void Particle::draw()
 	draw(ofVec3f(0,0,0));
 }
 
-
 //---------------------------------------------------------------------------------------------
 void Particle::updateAttributes()
 {
@@ -176,28 +179,26 @@ void Particle::updateAttributes()
 	}
 	
 	//connect to particle if distance is less than  PARAM_CONNECT_DIST
-
-	
 	if (checkAttribute(ATTR_CONNECT_NEXT)) {	//TODO:Namen überdenken
 		int index = getIdClosestParticle(ATTR_CONNECT_PREV, false, true);
-		float dist = particlesPtr->at(index).getPosition().distance(getPosition());
-		if (dist < PARAM_CONNECT_DIST) {
-			nextPtr = &(particlesPtr->at(index));
-			nextPtr->prevPtr = &(particlesPtr->at(id));
-			//nextPtr->drag = 0.9999;
-			//nextPtr->mass = 5.0;
-			
-			disableAttribute(ATTR_CONNECT_NEXT);
-			//enableAttribute(ATTR_SPRING_NEXT);
-			
-			nextPtr->enableAttribute(ATTR_SPRING_PREV);
-			nextPtr->disableAttribute(ATTR_CONNECT_PREV);
-			
-			nextPtr->changeState(STATE_PAIRING);
-			changeState(STATE_PAIRING);
-			
-		}
+		if (index != -1) {
+			float dist = particlesPtr->at(index).getPosition().distance(getPosition());
+			if (dist < PARAM_CONNECT_DIST) {
+				nextPtr = &(particlesPtr->at(index));
+				nextPtr->prevPtr = &(particlesPtr->at(id));
+				//nextPtr->drag = 0.9999;
+				//nextPtr->mass = 5.0;
 		
+				disableAttribute(ATTR_CONNECT_NEXT);
+				//enableAttribute(ATTR_SPRING_NEXT);
+		
+				nextPtr->enableAttribute(ATTR_SPRING_PREV);
+				nextPtr->disableAttribute(ATTR_CONNECT_PREV);
+		
+				nextPtr->changeState(STATE_PAIRING);
+				changeState(STATE_PAIRING);
+			}
+		}
 	}
 	
 	if (checkAttribute(ATTR_GRAV_PAIR)) {
@@ -297,10 +298,7 @@ void Particle::setRadius(float val)
 }
 void Particle::setDrag(float val)
 {
-	if (checkAttribute(ATTR_SPRING_PREV))
-	{
-		drag = val;
-	}
+	drag = val;
 }
 void Particle::setMass(float val)
 {
@@ -310,7 +308,10 @@ void Particle::setSpringStiffness(float val)
 {
 	springStiffness = val;
 }
-
+void Particle::setSpringDamping(float val)
+{
+	springDamping = val;
+}
 //------------------------------------------------------read/get things------------
 bool Particle::checkAttribute(int attribute){
 	return attribute & attributes;
@@ -319,19 +320,19 @@ bool Particle::checkAttributes(int attributes_)
 {
 	bool check = false;
 	for (unsigned int i=0; i<NUM_ATTRIBUTES; ++i){
-		check &= ((1<<i) & attributes_) & attributes;
+		if (attributes_ & (1<<i))
+			check = checkAttribute(1<<i);
 	}
 	return check;
 }
 
 int Particle::getIdClosestParticle(int attributes_, bool checkNextPtr, bool checkPrevPtr){
-		int index = 0;
+		int index = -1;
 		double dist = 10000.0;
 		for (unsigned int i=0; i<particlesPtr->size(); ++i){			
 			if (particlesPtr->at(i).id != id) {				
 				bool checkDist = true;
 			    checkDist &= particlesPtr->at(i).checkAttributes(attributes_);
-				
 			    if (checkNextPtr) {
 			    	checkDist &= (particlesPtr->at(i).nextPtr == NULL);
 			    }

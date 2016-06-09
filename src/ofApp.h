@@ -35,11 +35,13 @@ class ofApp : public ofBaseApp{
 		
 		vector <Particle> staticParticles;
 		
+		void resetParticles();
 		
-		//-----------------------------------------------------PARAMETER---
+		//-----------------------------------------------------PARAMETER---TODO:eigene Header / Parameter Klasse
 		void setParticlesDrag(float val);
 		void setParticlesMass(float val);
 		void setParticlesSpringStiffness(float val);
+		void setParticlesSpringDamping(float val);
 		void setParticlesCollisionMult(float val);
 		void setParticlesColorDiffMult(float val);
 		void setParticlesBorderX(ofVec2f val);
@@ -51,6 +53,7 @@ class ofApp : public ofBaseApp{
 		float para_drag_last;	//TODO:alle nach diesem muster
 		float para_mass_last;
 		float para_spring_stiffness_last;
+		float para_spring_damping_last;
 		float paraCollisionMultOld;
 		float paraColorDiffMultOld;
 		ofVec2f paraBorderXOld;
@@ -61,6 +64,7 @@ class ofApp : public ofBaseApp{
 		ofxFloatSlider para_drag;
 		ofxFloatSlider para_mass;
 		ofxFloatSlider para_spring_stiffness;
+		ofxFloatSlider para_spring_damping;
 		
 		ofxFloatSlider paraCollisionMult;
 		ofxFloatSlider paraColorDiffMult;

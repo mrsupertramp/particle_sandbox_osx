@@ -42,6 +42,7 @@ COPYRIGHT ENRICO STEINFELD. ALL RIGHTS RESERVED
 
 
 //TODO: Oberklasse Swarm
+//TODO: Alter einführen 
 
 #define NUM_ATTRIBUTES			20
 
@@ -72,6 +73,7 @@ class Particle : public ofNode {
 		void setDrag(float val);
 		void setMass(float val);
 		void setSpringStiffness(float val);
+		void setSpringDamping(float val);
 		
 		double getRadius();
 		int getState();
@@ -82,7 +84,7 @@ class Particle : public ofNode {
 		
 		unsigned int id;
 		
-		float 		PARAM_CONNECT_DIST 		= 30;
+		float 		PARAM_CONNECT_DIST 		= 60;
 		float 		PARAM_MAX_SPEED 		= 10;
 		float 		PARAM_BORDER_MULT 		= 0.4;
 		float 		PARAM_COLOR_DIFF_MULT 	= 0.0;
@@ -121,7 +123,7 @@ class Particle : public ofNode {
 		float mass;
 		
 		float springStiffness;
-		
+		float springDamping;
 		
 		bool grouped;
 		
