@@ -43,7 +43,6 @@ void ofApp::setup()
 	gui.add(para_drag.setup("drag", 1.0, 0.1, 1.0));
 	gui.add(para_mass.setup("mass", 1.0, 0.01, 10.0));
 	gui.add(para_spring_stiffness.setup("spring stiffness", 1.0, 0.01, 4.0));
-	gui.add(para_spring_damping.setup("spring damping", 1.0, 0.01, 1.0));
 	gui.add(paraCollisionMult.setup("collision mult", 0.03, 0.0, 0.08));
 	gui.add(paraColorDiffMult.setup("color diff mult", 0.2, 0.0, 0.04));
 	gui.add(paraBorderX.setup("border x",ofVec2f(-200,200),ofVec2f(-1000,-1000),ofVec2f(1000,1000)));
@@ -136,7 +135,7 @@ void ofApp::draw()
 }
 
 
-//---------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------
 
 void ofApp::updateParameter()
 {
@@ -151,10 +150,6 @@ void ofApp::updateParameter()
 	if (para_spring_stiffness != para_spring_stiffness_last) {
 		setParticlesSpringStiffness(para_spring_stiffness);
 		para_spring_stiffness_last = para_spring_stiffness;
-	}
-	if (para_spring_damping != para_spring_damping_last) {
-		setParticlesSpringDamping(para_spring_damping);
-		para_spring_damping_last = para_spring_damping;
 	}
 	if (paraCollisionMult != paraCollisionMultOld) {
 		setParticlesCollisionMult(paraCollisionMult);
@@ -246,10 +241,6 @@ void ofApp::generateParticle(ofVec3f pos, ofVec3f vel)
 {
 	particles.push_back(Particle(&particles,attributesNextParticle, pos, vel));
 }
-void ofApp::resetParticles()
-{
-	particles.erase(particles.begin(), particles.begin()+particles.size());
-}
 
 void ofApp::setParticlesDrag(float val)
 {
@@ -269,13 +260,6 @@ void ofApp::setParticlesSpringStiffness(float val)
 		particles[i].setSpringStiffness(val);
 	}
 }
-void ofApp::setParticlesSpringDamping(float val)
-{
-	for (unsigned int i=0; i<particles.size(); ++i){
-		particles[i].setSpringDamping(val);
-	}
-}
-
 void ofApp::setParticlesCollisionMult(float val)
 {
 	for (unsigned int i=0; i<particles.size(); ++i){
@@ -353,8 +337,6 @@ void ofApp::keyPressed(int key)
 		hideGui = !hideGui;
 	} else if (key == 's') {
 		hideStats = !hideStats;
-	} else if (key == 'r') {
-		resetParticles();
 	} else {
 		generateParticle(	ofVec3f(ofGetMouseX()-ofGetWidth()/2, ofGetMouseY()-ofGetHeight()/2, ofRandomf()*100), 
 							ofVec3f(ofRandomf()*2,ofRandomf()*2,ofRandomf()*2),

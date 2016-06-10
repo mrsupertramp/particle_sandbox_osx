@@ -54,8 +54,8 @@ class Particle : public ofNode {
 		Particle(vector <Particle> * pptr, int attributes_, ofVec3f pos_, ofVec3f vel_);
 		void setup();
 		void resetLinks();
-		void update();
-		void draw();
+		virtual void update();
+		virtual void draw();
 		void draw(ofVec3f lookAt);
 		
 		void changeState(unsigned int newState);
@@ -83,6 +83,8 @@ class Particle : public ofNode {
 		ofVec3f force;
 		
 		unsigned int id;
+		
+		
 		
 		float 		PARAM_CONNECT_DIST 		= 60;
 		float 		PARAM_MAX_SPEED 		= 10;
