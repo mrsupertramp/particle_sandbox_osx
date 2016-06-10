@@ -14,10 +14,6 @@ Particle::Particle(vector <Particle> * pptr, int attributes_, ofVec3f pos_, ofVe
 	setPosition(pos_);
 	velocity = vel_;
 	
-	mass = 1.0;
-	drag = 1.0;
-	springStiffness = 0.2;
-	
 	radius = 0;
 	
 	attributes = attributes_;
