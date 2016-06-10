@@ -84,18 +84,9 @@ class Particle : public ofNode {
 		
 		unsigned int id;
 		
-		
-		
 		float 		PARAM_CONNECT_DIST 		= 60;
 		float 		PARAM_MAX_SPEED 		= 10;
 		float 		PARAM_BORDER_MULT 		= 0.4;
-		float 		PARAM_COLOR_DIFF_MULT 	= 0.0;
-		double 		PARAM_COLLISION_MULT 	= 0.0;
-		
-		ofVec2f PARAM_BORDER_X = ofVec2f(-100,100);
-		ofVec2f PARAM_BORDER_Y = ofVec2f(-100,100);
-		ofVec2f PARAM_BORDER_Z = ofVec2f(-100,100);
-
 		
 		ofColor color;
 		
@@ -121,11 +112,18 @@ class Particle : public ofNode {
 		
 		double distanceToClosestParticle = -1;
 		
-		float drag;
-		float mass;
+		ofParameter<float> PARAM_COLOR_DIFF_MULT;
+		ofParameter<float> PARAM_COLLISION_MULT;
 		
-		float springStiffness;
-		float springDamping;
+		ofParameter<ofVec2f> PARAM_BORDER_X;
+		ofParameter<ofVec2f> PARAM_BORDER_Y;
+		ofParameter<ofVec2f> PARAM_BORDER_Z;
+		
+		ofParameter<float> drag;
+		ofParameter<float> mass;
+		
+		ofParameter<float> springStiffness;
+		ofParameter<float> springDamping;
 		
 		bool grouped;
 		
