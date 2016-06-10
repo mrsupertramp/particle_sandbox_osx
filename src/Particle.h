@@ -6,6 +6,7 @@ COPYRIGHT ENRICO STEINFELD. ALL RIGHTS RESERVED
 
 #include "ofMain.h"
 #include "ofNode.h"
+#include "ofParameter.h"
 
 //ein partikel befindet sich in EINEM state
 //kann als aufgabe interpretiert werden. wenn keine aufgabe vorhanden dann idle.
@@ -17,7 +18,7 @@ COPYRIGHT ENRICO STEINFELD. ALL RIGHTS RESERVED
 #define STATE_SEPERATE			5
 
 // ein Partikel kann mehrere Attribute besitzen
-#define ATTR_DRAG				1 << 0	// TODO: TODO: TODO: KOMMENTARE!!!!!!!
+#define ATTR_DRAG				1 << 0	// TODO: KOMMENTARE!!!!!!!
 #define ATTR_BORDER_XYZ			1 << 1
 #define ATTR_BORDER_CIRCLE		1 << 2
 #define ATTR_CENTRAL_FORCE		1 << 3
@@ -84,7 +85,13 @@ class Particle : public ofNode {
 		
 		unsigned int id;
 		
+<<<<<<< HEAD
 		float 		PARAM_CONNECT_DIST 		= 60;
+=======
+		ofParameterGroup parameters;
+		
+		float 		PARAM_CONNECT_DIST 		= 30;
+>>>>>>> swap
 		float 		PARAM_MAX_SPEED 		= 10;
 		float 		PARAM_BORDER_MULT 		= 0.4;
 		
@@ -118,9 +125,18 @@ class Particle : public ofNode {
 		ofParameter<ofVec2f> PARAM_BORDER_X;
 		ofParameter<ofVec2f> PARAM_BORDER_Y;
 		ofParameter<ofVec2f> PARAM_BORDER_Z;
+<<<<<<< HEAD
 		
 		ofParameter<float> drag;
 		ofParameter<float> mass;
+=======
+		
+		ofParameter<float> drag;
+		ofParameter<float> mass;
+		
+		ofParameter<float> springStiffness;
+		ofParameter<float> springDamping;
+>>>>>>> swap
 		
 		ofParameter<float> springStiffness;
 		ofParameter<float> springDamping;
