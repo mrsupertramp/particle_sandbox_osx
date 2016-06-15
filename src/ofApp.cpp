@@ -23,40 +23,36 @@ void ofApp::setup()
 	ofEnableSmoothing();
 	ofEnableDepthTest();
 	ofSetFrameRate(60);
-	cout << "Done Setup" << endl;
+
 	particles.reserve(20000);
 	
 	staticParticles.reserve(2000);
 	
 	
 	//-------------------------------------------------------------------------GUI----------
+	
+	
 	attr_border_xyz.addListener(this, &ofApp::setAttributeBorderXYZ);
 	
 	attr_collision.addListener(this, &ofApp::setAttributeCollision);
 	attr_color_diff.addListener(this, &ofApp::setAttributeColorDiff);
-	attr_spring_prev.addListener(this, &ofApp::setAttributeSpringPrev);
 	attr_connect_next.addListener(this, &ofApp::setAttributeConnectNext);
 	attr_connect_prev.addListener(this, &ofApp::setAttributeConnectPrev);
 	overrideAttributes.addListener(this, &ofApp::setAttributesAllParticles);
 
-	gui.setup();
-	gui.add(para_drag.setup("drag", 1.0, 0.1, 1.0));
-	gui.add(para_mass.setup("mass", 1.0, 0.01, 10.0));
-	gui.add(para_spring_stiffness.setup("spring stiffness", 1.0, 0.01, 4.0));
-	gui.add(paraCollisionMult.setup("collision mult", 0.03, 0.0, 0.08));
-	gui.add(paraColorDiffMult.setup("color diff mult", 0.2, 0.0, 0.04));
-	gui.add(paraBorderX.setup("border x",ofVec2f(-200,200),ofVec2f(-1000,-1000),ofVec2f(1000,1000)));
-	gui.add(paraBorderY.setup("border y",ofVec2f(-200,200),ofVec2f(-1000,-1000),ofVec2f(1000,1000)));
-	gui.add(paraBorderZ.setup("border z",ofVec2f(-150,150),ofVec2f(-1000,-1000),ofVec2f(1000,1000)));
+	//nextParticle = new Particle();
+	Particle particle;
 	
-	gui.add(attr_border_xyz.setup("attr_border_xyz",false));
-	gui.add(attr_collision.setup("attr_collision",false));
-	gui.add(attr_spring_prev.setup("attr_spring_dev",false));
-	gui.add(attr_connect_next.setup("attr_connect_next",false));
-	gui.add(attr_connect_prev.setup("attr_connect_prev",false));
-	gui.add(attr_color_diff.setup("attr_color_diff",false));
-	
+	gui.setup(particle.parameters);
+	//gui.setup();
+	/*
+	gui.add(attr_collision.setup("Collision"));
+	gui.add(attr_color_diff.setup("Attraction"));
+	gui.add(attr_connect_next.setup("Connect Next"));
+	gui.add(attr_connect_prev.setup("Connecz Prev"));
 	gui.add(overrideAttributes.setup("override"));
+	*/
+		
 	//---------------------------------------------------------------------------------------
 	
 
@@ -75,10 +71,12 @@ void ofApp::setup()
 		
 		float dist = ofRandom(1800, 2500);
 		ofVec3f pos( dist*cos(a1)*cos(a2), dist*sin(a1)*cos(a2), dist*sin(a2));
+		/*
 		staticParticles.push_back(Particle(&staticParticles, 0, pos, ofVec3f(0,0,0)));
 		staticParticles[i].lookAt(ofVec3f(0, 0, 0));
 		staticParticles[i].color = ofColor(0, 50);
 		staticParticles[i].setRadius(6);
+		*/
 	}
 	
 	//----------------------------------------------------------
@@ -90,7 +88,6 @@ void ofApp::setup()
 //--------------------------------------------------------------
 void ofApp::update()
 {
-	updateParameter();
 	for (unsigned int i=0; i<particles.size(); ++i){
 		particles[i].update();
 	}
@@ -136,43 +133,6 @@ void ofApp::draw()
 
 
 //--------------------------------------------------------------
-
-void ofApp::updateParameter()
-{
-	if (para_drag != para_drag_last) {
-		setParticlesDrag(para_drag);
-		para_drag_last = para_drag;
-	}
-	if (para_mass != para_mass_last) {
-		setParticlesMass(para_mass);
-		para_mass_last = para_mass;
-	}
-	if (para_spring_stiffness != para_spring_stiffness_last) {
-		setParticlesSpringStiffness(para_spring_stiffness);
-		para_spring_stiffness_last = para_spring_stiffness;
-	}
-	if (paraCollisionMult != paraCollisionMultOld) {
-		setParticlesCollisionMult(paraCollisionMult);
-		paraCollisionMultOld = paraCollisionMult;
-	}
-	if (paraColorDiffMult != paraColorDiffMultOld) {
-		setParticlesColorDiffMult(paraColorDiffMult);
-		paraColorDiffMultOld = paraColorDiffMult;
-	}
-	if (paraBorderX->x != paraBorderXOld.x || paraBorderX->y != paraBorderXOld.x) {
-		setParticlesBorderX(paraBorderX);
-		paraBorderXOld = paraBorderX;
-	}
-	if (paraBorderY->x != paraBorderYOld.x || paraBorderY->y != paraBorderYOld.x) {
-		setParticlesBorderY(paraBorderY);
-		paraBorderYOld = paraBorderY;
-	}
-	if (paraBorderZ->x != paraBorderZOld.x || paraBorderZ->y != paraBorderZOld.x) {
-		setParticlesBorderZ(paraBorderZ);
-		paraBorderZOld = paraBorderZ;
-	}
-
-}
 
 
 //--------------------------------------------------------------GUI FUNCTIONS------------
@@ -233,13 +193,9 @@ void ofApp::setAttributesAllParticles()
 	}
 }
 
-void ofApp::generateParticle(ofVec3f pos, ofVec3f vel, int attributes)
-{
-	generateParticle(pos,vel);
-}
 void ofApp::generateParticle(ofVec3f pos, ofVec3f vel)
 {
-	particles.push_back(Particle(&particles,attributesNextParticle, pos, vel));
+	particles.push_back(Particle(pos, vel, &(nextParticle.parameters), attributesNextParticle, &particles));
 }
 
 void ofApp::setParticlesDrag(float val)
@@ -263,46 +219,47 @@ void ofApp::setParticlesSpringStiffness(float val)
 void ofApp::setParticlesCollisionMult(float val)
 {
 	for (unsigned int i=0; i<particles.size(); ++i){
-		particles[i].PARAM_COLLISION_MULT = val;
+		//particles[i].parameters = nextParticle.parameters;
 	}
 }
 void ofApp::setParticlesColorDiffMult(float val)
 {
 	for (unsigned int i=0; i<particles.size(); ++i){
-		particles[i].PARAM_COLOR_DIFF_MULT = val;
+		//particles[i].parameters = nextParticle.parameters;
 	}
 }
 void ofApp::setParticlesBorderX(ofVec2f val)
 {
 	for (unsigned int i=0; i<particles.size(); ++i){
-		particles[i].PARAM_BORDER_X = val;
+		//particles[i].parameters = nextParticle.parameters;
 	}
 }
 void ofApp::setParticlesBorderY(ofVec2f val)
 {
 	for (unsigned int i=0; i<particles.size(); ++i){
-		particles[i].PARAM_BORDER_Y = val;
+		//particles[i].parameters = nextParticle.parameters;
 	}
 }
 void ofApp::setParticlesBorderZ(ofVec2f val)
 {
 	for (unsigned int i=0; i<particles.size(); ++i){
-		particles[i].PARAM_BORDER_Z = val;
+		//particles[i].parameters = nextParticle.parameters;
 	}
 }
 
 void ofApp::drawBorders()
 {
+	
 	ofPushMatrix();
 	//ofTranslate(paraBorderX->x,paraBorderY->x,paraBorderZ->x);
-	ofBoxPrimitive box(paraBorderX->y-paraBorderX->x, paraBorderY->y-paraBorderY->x, paraBorderZ->y-paraBorderZ->x);
+	//ofBoxPrimitive box(paraBorderX->y-paraBorderX->x, paraBorderY->y-paraBorderY->x, paraBorderZ->y-paraBorderZ->x);
 	/*box.setSideColor(0, ofColor(0,30));
 	box.setSideColor(1, ofColor(0,30));
 	box.setSideColor(2, ofColor(0,30));
 	box.setSideColor(3, ofColor(0,30));
 	box.setSideColor(4, ofColor(0,30));
 	*/
-	
+	/*
 	ofMesh sideXYMin;
 	sideXYMin.addVertex(ofVec3f(paraBorderX->x,paraBorderY->x,paraBorderZ->x));
 	sideXYMin.addVertex(ofVec3f(paraBorderX->y,paraBorderY->x,paraBorderZ->x));
@@ -313,6 +270,7 @@ void ofApp::drawBorders()
 	sideXYMin.draw();
 	//box.draw();
 	ofPopMatrix();
+	*/
 }
 
 //---------------------------------------------------------------------------
@@ -339,8 +297,7 @@ void ofApp::keyPressed(int key)
 		hideStats = !hideStats;
 	} else {
 		generateParticle(	ofVec3f(ofGetMouseX()-ofGetWidth()/2, ofGetMouseY()-ofGetHeight()/2, ofRandomf()*100), 
-							ofVec3f(ofRandomf()*2,ofRandomf()*2,ofRandomf()*2),
-							attributesNextParticle);
+							ofVec3f(ofRandomf()*2,ofRandomf()*2,ofRandomf()*2));
 							
 	}
 

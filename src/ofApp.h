@@ -30,8 +30,9 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 	
 		void generateParticle(ofVec3f pos, ofVec3f vel);
-		void generateParticle(ofVec3f pos, ofVec3f vel, int attributes);
+		//void generateParticle(ofVec3f pos, ofVec3f vel, int attributes);
 		vector <Particle> particles;
+		//Particle nextParticle;
 		
 		vector <Particle> staticParticles;
 		
@@ -48,26 +49,8 @@ class ofApp : public ofBaseApp{
 		
 		void drawBorders();
 		
-		float para_drag_last;	//TODO:alle nach diesem muster
-		float para_mass_last;
-		float para_spring_stiffness_last;
-		float paraCollisionMultOld;
-		float paraColorDiffMultOld;
-		ofVec2f paraBorderXOld;
-		ofVec2f paraBorderYOld;
-		ofVec2f paraBorderZOld;
+		//ofParameterGroup parameters;
 		
-		//------------------------------------------------GUI--------------
-		ofxFloatSlider para_drag;
-		ofxFloatSlider para_mass;
-		ofxFloatSlider para_spring_stiffness;
-		
-		ofxFloatSlider paraCollisionMult;
-		ofxFloatSlider paraColorDiffMult;
-		ofxVec2Slider paraBorderX;
-		ofxVec2Slider paraBorderY;
-		ofxVec2Slider paraBorderZ;
-		//checkboxes for next generated particle attribubutes
 		ofxToggle attr_border_xyz;
 		ofxToggle attr_collision;
 		ofxToggle attr_spring_prev;
@@ -88,7 +71,6 @@ class ofApp : public ofBaseApp{
 		
 		bool hideGui = false;
 		
-		void updateParameter();
 		int attributesNextParticle;
 		
 		void setAttributesAllParticles();
@@ -113,5 +95,8 @@ class ofApp : public ofBaseApp{
 		//----------------------------------------------------------------------
 		string getBit(int k);
 		
+	private:
+
+		Particle nextParticle;
 			
 };

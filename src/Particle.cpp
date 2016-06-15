@@ -4,8 +4,28 @@ COPYRIGHT ENRICO STEINFELD. ALL RIGHTS RESERVED
 
 #include "Particle.h"
 
-Particle::Particle(vector <Particle> * pptr, int attributes_, ofVec3f pos_, ofVec3f vel_)
+Particle::Particle()
 {
+	setPosition(ofVec3f(0,0,0));
+	velocity = ofVec3f(0,0,0);
+	parameters.setName("Particles Parameter");
+	parameters.add(PARAM_COLOR_DIFF_MULT.set("colorDiffMult", 0.1, 0.0, 1.0));
+	parameters.add(PARAM_COLLISION_MULT.set("collisionMult", 0.1, 0.0, 1.0));
+	
+	parameters.add(PARAM_BORDER_X.set("borderX", ofVec2f(-200,200), ofVec2f(-1000,-1000), ofVec3f(1000,1000)));
+	parameters.add(PARAM_BORDER_Y.set("borderY", ofVec2f(-200,200), ofVec2f(-1000,-1000), ofVec3f(1000,1000)));
+	parameters.add(PARAM_BORDER_Z.set("borderZ", ofVec2f(-200,200), ofVec2f(-1000,-1000), ofVec3f(1000,1000)));
+	
+	parameters.add(drag.set("drag", 1.0, 0.0, 1.0));
+	parameters.add(mass.set("mass", 1.0, 0.1, 4.0));
+	
+	parameters.add(springStiffness.set("springStiffness", 1.0, 0.0, 4.0));
+	parameters.add(springDamping.set("springDamping", 0.1, 0.0, 1.0));
+	
+}
+
+Particle::Particle(ofVec3f pos_, ofVec3f vel_, ofParameterGroup *parameters_, int attributes_, vector <Particle> * pptr)
+{	
 	particlesPtr = pptr;
 	prevPtr = NULL;
 	nextPtr = NULL;
@@ -16,13 +36,32 @@ Particle::Particle(vector <Particle> * pptr, int attributes_, ofVec3f pos_, ofVe
 	
 	radius = 0;
 	
+	//cout << (*parameters_)[0] << endl;
+	parameters.setName("Particles Parameter");
+	parameters.add(PARAM_COLOR_DIFF_MULT.set("colorDiffMult", 0.1, 0.0, 1.0));
+	parameters.add(PARAM_COLLISION_MULT.set("collisionMult", 0.1, 0.0, 1.0));
+	
+	parameters.add(PARAM_BORDER_X.set("borderX", ofVec2f(-200,200), ofVec2f(-1000,-1000), ofVec3f(1000,1000)));
+	parameters.add(PARAM_BORDER_Y.set("borderY", ofVec2f(-200,200), ofVec2f(-1000,-1000), ofVec3f(1000,1000)));
+	parameters.add(PARAM_BORDER_Z.set("borderZ", ofVec2f(-200,200), ofVec2f(-1000,-1000), ofVec3f(1000,1000)));
+	
+	parameters.add(drag.set("drag", 0.1, 0.0, 1.0));
+	parameters.add(mass.set("mass", 0.1, 0.0, 1.0));
+	
+	parameters.add(springStiffness.set("springStiffness", 0.1, 0.0, 1.0));
+	parameters.add(springDamping.set("springDamping", 0.1, 0.0, 1.0));
+	//parameters = parameters_;
+	
+	
 	attributes = attributes_;
-	//changeState(STATE_BIRTH);
+
 	changeState(STATE_IDLE);
-	radius = 9;
+	
+	
 	
 	//------------TESTING-------------
 	radiusBirth = 9;
+	radius = 9;
 	
 	color = ofColor(0);
 	color.setHsb(ofRandom(0,255),150, ofRandom(220,255), 250);
@@ -35,19 +74,12 @@ Particle::Particle(vector <Particle> * pptr, int attributes_, ofVec3f pos_, ofVe
 	} else {
 		color.setHue(ofRandom(80, 82));
 	}
-		
-
 }
+
 
 void Particle::setup()
 {
 
-}
-
-void Particle::resetLinks()
-{
-	prevPtr = NULL;
-	nextPtr = NULL;
 }
 
 void Particle::update()
@@ -153,23 +185,23 @@ void Particle::updateAttributes()
 {
 	//mirror at borders
 	if (checkAttribute(ATTR_BORDER_XYZ)) {
-		if (getPosition().x < PARAM_BORDER_X.x) {
-			force.x += PARAM_BORDER_MULT * (PARAM_BORDER_X.x - getPosition().x);
+		if (getPosition().x < PARAM_BORDER_X->x) {
+			force.x += PARAM_BORDER_MULT * (PARAM_BORDER_X->x - getPosition().x);
 		}
-		if (getPosition().x > PARAM_BORDER_X.y) {
-			force.x += PARAM_BORDER_MULT * (PARAM_BORDER_X.y - getPosition().x);
+		if (getPosition().x > PARAM_BORDER_X->y) {
+			force.x += PARAM_BORDER_MULT * (PARAM_BORDER_X->y - getPosition().x);
 		}
-		if (getPosition().y < PARAM_BORDER_Y.x) {
-			force.y += PARAM_BORDER_MULT * (PARAM_BORDER_Y.x - getPosition().y);
+		if (getPosition().y < PARAM_BORDER_Y->x) {
+			force.y += PARAM_BORDER_MULT * (PARAM_BORDER_Y->x - getPosition().y);
 		}
-		if (getPosition().y > PARAM_BORDER_Y.y) {
-			force.y += PARAM_BORDER_MULT * (PARAM_BORDER_Y.y - getPosition().y);
+		if (getPosition().y > PARAM_BORDER_Y->y) {
+			force.y += PARAM_BORDER_MULT * (PARAM_BORDER_Y->y - getPosition().y);
 		}
-		if (getPosition().z < PARAM_BORDER_Z.x) {
-			force.z += PARAM_BORDER_MULT * (PARAM_BORDER_Z.x - getPosition().z);
+		if (getPosition().z < PARAM_BORDER_Z->x) {
+			force.z += PARAM_BORDER_MULT * (PARAM_BORDER_Z->x - getPosition().z);
 		}
-		if (getPosition().z > PARAM_BORDER_Z.y) {
-			force.z += PARAM_BORDER_MULT * (PARAM_BORDER_Z.y - getPosition().z);
+		if (getPosition().z > PARAM_BORDER_Z->y) {
+			force.z += PARAM_BORDER_MULT * (PARAM_BORDER_Z->y - getPosition().z);
 		}
 	}
 	
@@ -307,6 +339,25 @@ void Particle::setSpringDamping(float val)
 {
 	springDamping = val;
 }
+
+void Particle::resetLinks()
+{
+	prevPtr = NULL;
+	nextPtr = NULL;
+}
+
+void Particle::setParameters(ofParameterGroup *parameters_)
+{
+	for (unsigned int i=0; i<parameters_->size(); ++i){
+		if (parameters.getType(i).compare("11ofParameterI7ofVec2fE")){
+			parameters.getVec2f(i).set(parameters_->getVec2f(i));
+		} else if (parameters.getType(i).compare("11ofParameterIfE")){
+			parameters.getFloat(i).set(parameters_->getFloat(i));
+		}
+		}
+}
+
+
 //------------------------------------------------------read/get things------------
 bool Particle::checkAttribute(int attribute){
 	return attribute & attributes;

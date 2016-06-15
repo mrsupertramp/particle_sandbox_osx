@@ -52,7 +52,8 @@ COPYRIGHT ENRICO STEINFELD. ALL RIGHTS RESERVED
 
 class Particle : public ofNode {
 	public:
-		Particle(vector <Particle> * pptr, int attributes_, ofVec3f pos_, ofVec3f vel_);
+		Particle();
+		Particle(ofVec3f pos_, ofVec3f vel_, ofParameterGroup *parameters_=NULL, int attributes_=0, vector <Particle> * pptr = NULL);
 		void setup();
 		void resetLinks();
 		virtual void update();
@@ -85,13 +86,9 @@ class Particle : public ofNode {
 		
 		unsigned int id;
 		
-<<<<<<< HEAD
-		float 		PARAM_CONNECT_DIST 		= 60;
-=======
 		ofParameterGroup parameters;
 		
 		float 		PARAM_CONNECT_DIST 		= 30;
->>>>>>> swap
 		float 		PARAM_MAX_SPEED 		= 10;
 		float 		PARAM_BORDER_MULT 		= 0.4;
 		
@@ -125,21 +122,14 @@ class Particle : public ofNode {
 		ofParameter<ofVec2f> PARAM_BORDER_X;
 		ofParameter<ofVec2f> PARAM_BORDER_Y;
 		ofParameter<ofVec2f> PARAM_BORDER_Z;
-<<<<<<< HEAD
-		
-		ofParameter<float> drag;
-		ofParameter<float> mass;
-=======
 		
 		ofParameter<float> drag;
 		ofParameter<float> mass;
 		
 		ofParameter<float> springStiffness;
 		ofParameter<float> springDamping;
->>>>>>> swap
 		
-		ofParameter<float> springStiffness;
-		ofParameter<float> springDamping;
+		void setParameters(ofParameterGroup *parameters_);
 		
 		bool grouped;
 		
