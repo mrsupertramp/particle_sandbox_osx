@@ -45,13 +45,12 @@ Particle::Particle(ofVec3f pos_, ofVec3f vel_, ofParameterGroup *parameters_, in
 	parameters.add(PARAM_BORDER_Y.set("borderY", ofVec2f(-200,200), ofVec2f(-1000,-1000), ofVec3f(1000,1000)));
 	parameters.add(PARAM_BORDER_Z.set("borderZ", ofVec2f(-200,200), ofVec2f(-1000,-1000), ofVec3f(1000,1000)));
 	
-	parameters.add(drag.set("drag", 0.1, 0.0, 1.0));
-	parameters.add(mass.set("mass", 0.1, 0.0, 1.0));
+	parameters.add(drag.set("drag", 1.0, 0.0, 1.0));
+	parameters.add(mass.set("mass", 1.0, 0.0, 1.0));
 	
 	parameters.add(springStiffness.set("springStiffness", 0.1, 0.0, 1.0));
 	parameters.add(springDamping.set("springDamping", 0.1, 0.0, 1.0));
 	//parameters = parameters_;
-	
 	
 	attributes = attributes_;
 

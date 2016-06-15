@@ -7,7 +7,7 @@ COPYRIGHT ENRICO STEINFELD. ALL RIGHTS RESERVED
 string ofApp::getBit(int k)
 {
 	string s;
-	for (int i=0; i<22; ++i){
+		for (int i=0; i<22; ++i){
 		if (k & (1 << i)) {
 			s = "1" + s;
 		} else {
@@ -45,13 +45,13 @@ void ofApp::setup()
 	
 	gui.setup(particle.parameters);
 	//gui.setup();
-	/*
-	gui.add(attr_collision.setup("Collision"));
-	gui.add(attr_color_diff.setup("Attraction"));
-	gui.add(attr_connect_next.setup("Connect Next"));
-	gui.add(attr_connect_prev.setup("Connecz Prev"));
+	gui.add(attr_border_xyz.setup("Border XYZ",true));
+	gui.add(attr_collision.setup("Collision",false));
+	gui.add(attr_color_diff.setup("Attraction",false));
+	gui.add(attr_connect_next.setup("Connect Next",false));
+	gui.add(attr_connect_prev.setup("Connecz Prev",false));
 	gui.add(overrideAttributes.setup("override"));
-	*/
+	
 		
 	//---------------------------------------------------------------------------------------
 	
@@ -107,9 +107,9 @@ void ofApp::draw()
 	}
 	*/
 	
-	//ofEnableDepthTest();
+	ofEnableDepthTest();
 	//ofEnableAlphaBlending();
-	glEnable(GL_DEPTH_TEST); 
+	//glEnable(GL_DEPTH_TEST); 
 	
 	//drawBorders();		//TODO: fix alpha blending issue
 	for (unsigned int i=0 ; i<particles.size(); ++i){

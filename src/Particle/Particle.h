@@ -88,9 +88,11 @@ class Particle : public ofNode {
 		
 		ofParameterGroup parameters;
 		
-		float 		PARAM_CONNECT_DIST 		= 30;
-		float 		PARAM_MAX_SPEED 		= 10;
-		float 		PARAM_BORDER_MULT 		= 0.4;
+		
+		
+		float 		PARAM_CONNECT_DIST 		= 30;	//TODO: Umbenennen
+		float 		PARAM_MAX_SPEED 		= 10;	//TODO: Umbenennen
+		float 		PARAM_BORDER_MULT 		= 0.4;	//TODO: Umbenennen
 		
 		ofColor color;
 		
