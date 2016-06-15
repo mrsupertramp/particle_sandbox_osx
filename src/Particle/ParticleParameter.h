@@ -4,5 +4,7 @@
 #include "ofParameter.h"
 
 class ParticleParameter : public ofParameter{
-	ParticleParameter()
+	ParticleParameter();
+	
+	
 };
