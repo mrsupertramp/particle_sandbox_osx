@@ -18,27 +18,7 @@ COPYRIGHT ENRICO STEINFELD. ALL RIGHTS RESERVED
 #define STATE_SEPERATE			5
 
 // ein Partikel kann mehrere Attribute besitzen
-#define ATTR_DRAG				1 << 0	// TODO: KOMMENTARE!!!!!!!
-#define ATTR_BORDER_XYZ			1 << 1
-#define ATTR_BORDER_CIRCLE		1 << 2
-#define ATTR_CENTRAL_FORCE		1 << 3
-#define ATTR_GRAVITATION		1 << 4
-//#define ATTR_CONNECT_PAIR		1 << 5
-#define ATTR_CONNECT_NEXT		1 << 6
-#define ATTR_CONNECT_PREV		1 << 7
-#define ATTR_CONNECT_GROUP		1 << 8
-#define ATTR_GRAV_PAIR			1 << 9
-#define ATTR_GRAV_GROUP			1 << 10
-#define ATTR_SPRING_NEXT		1 << 11
-#define ATTR_SPRING_PREV		1 << 12
-#define ATTR_SPRING				1 << 13
-#define ATTR_INVISIBLE			1 << 14
-#define ATTR_COLLISION			1 << 15
-#define ATTR_COLOR_DIFF			1 << 16
 
-#define ATTR_DRAW_LINE_DIST		1 << 17
-#define ATTR_DRAW_LINE_NEXT		1 << 18
-#define ATTR_DRAW_LINE_PREV		1 << 19
 
 
 
@@ -62,11 +42,7 @@ class Particle : public ofNode {
 		
 		void changeState(unsigned int newState);
 		
-		void enableAttribute(int attribute); 
-		void disableAttribute(int attribute);
-		void setAttributes(int newAttributes);
-		void setAttribute(int attribute);
-		void toggleAttribute(int attribute);
+
 		
 		bool checkAttribute(int attribute);
 		bool checkAttributes(int attributes_);
@@ -86,8 +62,8 @@ class Particle : public ofNode {
 		
 		unsigned int id;
 		
-		ofParameterGroup parameters;
-		
+
+		ParticleParameter parameters;
 		
 		
 		float 		PARAM_CONNECT_DIST 		= 30;	//TODO: Umbenennen
@@ -100,36 +76,22 @@ class Particle : public ofNode {
 		
 	
 	private:
-		void updateAttributes();
 		
 		int getIdClosestParticle(int attributes_, bool checkNextPtr=false, bool checkPrevPtr=false);
 		double getDistanceClosestParticle(int attributes_, bool checkNextPtr=false, bool checkPrev=false);
 		
 		vector <Particle>* particlesPtr;
+		//beliebig viele Verbindungen
 		
 		Particle* prevPtr;
 		Particle* nextPtr;
-		
 		vector <Particle*> groupPtr;
 		
 		unsigned int state;
-		unsigned int attributes;
 		unsigned int tLastStateChange;
 		
 		double distanceToClosestParticle = -1;
 		
-		ofParameter<float> PARAM_COLOR_DIFF_MULT;
-		ofParameter<float> PARAM_COLLISION_MULT;
-		
-		ofParameter<ofVec2f> PARAM_BORDER_X;
-		ofParameter<ofVec2f> PARAM_BORDER_Y;
-		ofParameter<ofVec2f> PARAM_BORDER_Z;
-		
-		ofParameter<float> drag;
-		ofParameter<float> mass;
-		
-		ofParameter<float> springStiffness;
-		ofParameter<float> springDamping;
 		
 		void setParameters(ofParameterGroup *parameters_);
 		
