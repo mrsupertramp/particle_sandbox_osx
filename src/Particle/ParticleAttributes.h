@@ -2,7 +2,7 @@
 
 #include "ofMain.h"
 #include "ofParameter.h"
-/
+
 #define ATTR_BORDER_XYZ			1 << 1
 #define ATTR_BORDER_CIRCLE		1 << 2
 #define ATTR_CENTRAL_FORCE		1 << 3
@@ -42,9 +42,12 @@ class ParticleAttributes{
 		
 		int bits;
 		
+		bool checkAttribute(int attribute);
+		bool checkAttributes(int bits_);
+		
 		
 	private:
-		setBits();
+		void setBits();
 		
 		
 };

@@ -291,13 +291,13 @@ void Particle::setAttributes(ParticleAttributes *attributes_)
 //------------------------------------------------------read/get things------------
 
 
-int Particle::getIdClosestParticle(bool attribute, bool checkNextPtr, bool checkPrevPtr){
+int Particle::getIdClosestParticle(int attributes_, bool checkNextPtr, bool checkPrevPtr){
 		int index = -1;
 		double dist = 10000.0;
 		for (unsigned int i=0; i<particlesPtr->size(); ++i){			
 			if (particlesPtr->at(i).id != id) {				
 				bool checkDist = true;
-			    checkDist &= particlesPtr->at(i).checkAttributes(attributes_);
+			    checkDist &= particlesPtr->at(i).attributes.checkAttributes(attributes_);
 			    if (checkNextPtr) {
 			    	checkDist &= (particlesPtr->at(i).nextPtr == NULL);
 			    }
@@ -318,12 +318,12 @@ int Particle::getIdClosestParticle(bool attribute, bool checkNextPtr, bool check
 		return index;
 }
 
-double Particle::getDistanceClosestParticle(ParticleAttributes *attributes_, bool checkNextPtr, bool checkPrevPtr){
+double Particle::getDistanceClosestParticle(int attributes_, bool checkNextPtr, bool checkPrevPtr){
 		double dist = 10000.0;
 		for (unsigned int i=0; i<particlesPtr->size(); ++i){
 			if (particlesPtr->at(i).id != id) {
 				bool checkDist = true;
-			    checkDist &= particlesPtr->at(i).checkAttributes(attributes_);
+			    checkDist &= particlesPtr->at(i).attributes.checkAttributes(attributes_);
 			    if (checkNextPtr) {
 			    	checkDist &= (particlesPtr->at(i).nextPtr == NULL);
 			    }
