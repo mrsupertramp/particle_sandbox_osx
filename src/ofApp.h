@@ -37,43 +37,23 @@ class ofApp : public ofBaseApp{
 		vector <Particle> staticParticles;
 		
 		
-		//-----------------------------------------------------PARAMETER---
-		void setParticlesDrag(float val);
-		void setParticlesMass(float val);
-		void setParticlesSpringStiffness(float val);
-		void setParticlesCollisionMult(float val);
-		void setParticlesColorDiffMult(float val);
-		void setParticlesBorderX(ofVec2f val);
-		void setParticlesBorderY(ofVec2f val);
-		void setParticlesBorderZ(ofVec2f val);
-		
 		void drawBorders();
 		
 		//ofParameterGroup parameters;
+
 		
-		ofxToggle attr_border_xyz;
-		ofxToggle attr_collision;
-		ofxToggle attr_spring_prev;
-		ofxToggle attr_connect_next;
-		ofxToggle attr_connect_prev;
-		ofxToggle attr_color_diff;
+		ofxButton but_overwriteAttributes;
+		ofxButton but_overwriteParameters;
 		
-		ofxButton overrideAttributes;
-		
-		void setAttributeBorderXYZ(bool &attr_border_xyz);	
-		void setAttributeCollision(bool &attr_collision);	
-		void setAttributeColorDiff(bool &attr_color_diff);
-		void setAttributeSpringPrev(bool &attr_spring_prev);
-		void setAttributeConnectNext(bool &attr_connect_next);
-		void setAttributeConnectPrev(bool &attr_connect_prev);
-		
-		ofxPanel gui;
+		ofxPanel guiAttributes;
+		ofxPanel guiParameters;
 		
 		bool hideGui = false;
 		
 		int attributesNextParticle;
 		
-		void setAttributesAllParticles();
+		void overwriteAttributes();
+		void overwriteParameters();
 		
 		
 		

@@ -32,25 +32,15 @@ void ofApp::setup()
 	//-------------------------------------------------------------------------GUI----------
 	
 	
-	attr_border_xyz.addListener(this, &ofApp::setAttributeBorderXYZ);
-	
-	attr_collision.addListener(this, &ofApp::setAttributeCollision);
-	attr_color_diff.addListener(this, &ofApp::setAttributeColorDiff);
-	attr_connect_next.addListener(this, &ofApp::setAttributeConnectNext);
-	attr_connect_prev.addListener(this, &ofApp::setAttributeConnectPrev);
-	overrideAttributes.addListener(this, &ofApp::setAttributesAllParticles);
+	but_overwriteAttributes.addListener(this, &ofApp::overwriteAttributes);
+	but_overwriteParameters.addListener(this, &ofApp::overwriteParameters);
 
 	//nextParticle = new Particle();
 	Particle particle;
 	
-	gui.setup(particle.parameters);
+	guiAttributes.setup(nextParticle.attributes.group);
+	guiParameters.setup(nextParticle.parameters.group);
 	//gui.setup();
-	gui.add(attr_border_xyz.setup("Border XYZ",true));
-	gui.add(attr_collision.setup("Collision",false));
-	gui.add(attr_color_diff.setup("Attraction",false));
-	gui.add(attr_connect_next.setup("Connect Next",false));
-	gui.add(attr_connect_prev.setup("Connecz Prev",false));
-	gui.add(overrideAttributes.setup("override"));
 	
 		
 	//---------------------------------------------------------------------------------------
@@ -122,7 +112,8 @@ void ofApp::draw()
 	
 	if (!hideGui) {
 		ofDisableDepthTest();
-		gui.draw();
+		guiAttributes.draw();
+		guiParameters.draw();
 	}
 	
 	if (!hideStats) {
@@ -136,115 +127,23 @@ void ofApp::draw()
 
 
 //--------------------------------------------------------------GUI FUNCTIONS------------
-void ofApp::setAttributeBorderXYZ(bool &attr_border_xyz)
-{
-	if (attr_border_xyz) {
-		attributesNextParticle |= ATTR_BORDER_XYZ;
-	} else {
-		attributesNextParticle &= ~(ATTR_BORDER_XYZ);
-	}
-}
 
-void ofApp::setAttributeCollision(bool &attr_collision)
-{
-	if (attr_collision) {
-		attributesNextParticle |= ATTR_COLLISION;
-	} else {
-		attributesNextParticle &= ~(ATTR_COLLISION);
-	}
-}
-void ofApp::setAttributeColorDiff(bool &attr_color_diff)
-{
-	if (attr_color_diff) {
-		attributesNextParticle |= ATTR_COLOR_DIFF;
-	} else {
-		attributesNextParticle &= ~(ATTR_COLOR_DIFF);
-	}	
-}
-void ofApp::setAttributeSpringPrev(bool &attr_spring_prev)
-{
-	if (attr_spring_prev) {
-		attributesNextParticle |= ATTR_SPRING_PREV;
-	} else {
-		attributesNextParticle &= ~(ATTR_SPRING_PREV);
-	}
-}
-void ofApp::setAttributeConnectNext(bool &attr_connect_next)
-{
-	if (attr_connect_next) {
-		attributesNextParticle |= ATTR_CONNECT_NEXT;
-	} else {
-		attributesNextParticle &= ~(ATTR_CONNECT_NEXT);
-	}
-}
-void ofApp::setAttributeConnectPrev(bool &attr_connect_prev)
-{
-	if (attr_connect_prev) {
-		attributesNextParticle |= ATTR_CONNECT_PREV;
-	} else {
-		attributesNextParticle &= ~(ATTR_CONNECT_PREV);
-	}
-}
-void ofApp::setAttributesAllParticles()
+void ofApp::overwriteAttributes()
 {
 	for (unsigned int i=0; i<particles.size(); ++i){
 		particles[i].resetLinks();	//TODO: make this line not necessary
-		particles[i].setAttributes(attributesNextParticle);
+		particles[i].setAttributes(&(nextParticle.attributes));
 	}
 }
-
+void ofApp::overwriteParameters()
+{
+	for (unsigned int i=0; i<particles.size(); ++i){
+		particles[i].setParameters(&(nextParticle.parameters));
+	}
+}
 void ofApp::generateParticle(ofVec3f pos, ofVec3f vel)
-{
-	particles.push_back(Particle(pos, vel, &(nextParticle.parameters), attributesNextParticle, &particles));
-}
-
-void ofApp::setParticlesDrag(float val)
-{
-	for (unsigned int i=0; i<particles.size(); ++i){
-		particles[i].setDrag(val);
-	}
-}
-void ofApp::setParticlesMass(float val)
-{
-	for (unsigned int i=0; i<particles.size(); ++i){
-		particles[i].setMass(val);
-	}
-}
-void ofApp::setParticlesSpringStiffness(float val)
-{
-	for (unsigned int i=0; i<particles.size(); ++i){
-		particles[i].setSpringStiffness(val);
-	}
-}
-void ofApp::setParticlesCollisionMult(float val)
-{
-	for (unsigned int i=0; i<particles.size(); ++i){
-		//particles[i].parameters = nextParticle.parameters;
-	}
-}
-void ofApp::setParticlesColorDiffMult(float val)
-{
-	for (unsigned int i=0; i<particles.size(); ++i){
-		//particles[i].parameters = nextParticle.parameters;
-	}
-}
-void ofApp::setParticlesBorderX(ofVec2f val)
-{
-	for (unsigned int i=0; i<particles.size(); ++i){
-		//particles[i].parameters = nextParticle.parameters;
-	}
-}
-void ofApp::setParticlesBorderY(ofVec2f val)
-{
-	for (unsigned int i=0; i<particles.size(); ++i){
-		//particles[i].parameters = nextParticle.parameters;
-	}
-}
-void ofApp::setParticlesBorderZ(ofVec2f val)
-{
-	for (unsigned int i=0; i<particles.size(); ++i){
-		//particles[i].parameters = nextParticle.parameters;
-	}
+{	
+	particles.push_back(Particle(pos, vel, &(nextParticle.parameters), &(nextParticle.attributes), &particles));
 }
 
 void ofApp::drawBorders()
@@ -280,17 +179,10 @@ void ofApp::keyPressed(int key)
 {
 
 	if (key == '1') {
-		for (unsigned int i=0; i<particles.size(); ++i){
-			particles[i].enableAttribute(1 << 14);
-			particles[i].disableAttribute(1 << 11);
 
-		}
 	} else if (key == '2') {
-		particles[0].disableAttribute(ATTR_SPRING_PREV);
 	} else if (key == '3') {
-		particles[0].enableAttribute(ATTR_CONNECT_NEXT);
 	} else if (key == '4') {
-		particles[0].disableAttribute(ATTR_CONNECT_NEXT);
 	} else if (key == 'h') {
 		hideGui = !hideGui;
 	} else if (key == 's') {

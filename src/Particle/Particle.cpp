@@ -8,11 +8,10 @@ Particle::Particle()
 {
 	setPosition(ofVec3f(0,0,0));
 	velocity = ofVec3f(0,0,0);
-
 	
 }
 
-Particle::Particle(ofVec3f pos_, ofVec3f vel_, ofParameterGroup *parameters_, int attributes_, vector <Particle> * pptr)
+Particle::Particle(ofVec3f pos_, ofVec3f vel_, ParticleParameter *parameters_, ParticleAttributes *attributes_, vector <Particle> * pptr)
 {	
 	particlesPtr = pptr;
 	prevPtr = NULL;
@@ -20,30 +19,14 @@ Particle::Particle(ofVec3f pos_, ofVec3f vel_, ofParameterGroup *parameters_, in
 	id = particlesPtr->size();
 
 	setPosition(pos_);
-	velocity = vel_;
+	velocity = vel_;	//TODO: veloctiy -> private
 	
 	radius = 0;
 	
-	//cout << (*parameters_)[0] << endl;
-	parameters.setName("Particles Parameter");
-	parameters.add(PARAM_COLOR_DIFF_MULT.set("colorDiffMult", 0.1, 0.0, 1.0));
-	parameters.add(PARAM_COLLISION_MULT.set("collisionMult", 0.1, 0.0, 1.0));
 	
-	parameters.add(PARAM_BORDER_X.set("borderX", ofVec2f(-200,200), ofVec2f(-1000,-1000), ofVec3f(1000,1000)));
-	parameters.add(PARAM_BORDER_Y.set("borderY", ofVec2f(-200,200), ofVec2f(-1000,-1000), ofVec3f(1000,1000)));
-	parameters.add(PARAM_BORDER_Z.set("borderZ", ofVec2f(-200,200), ofVec2f(-1000,-1000), ofVec3f(1000,1000)));
-	
-	parameters.add(drag.set("drag", 1.0, 0.0, 1.0));
-	parameters.add(mass.set("mass", 1.0, 0.0, 1.0));
-	
-	parameters.add(springStiffness.set("springStiffness", 0.1, 0.0, 1.0));
-	parameters.add(springDamping.set("springDamping", 0.1, 0.0, 1.0));
-	//parameters = parameters_;
-	
-	attributes = attributes_;
-
+	setParameters(parameters_);
+	setAttributes(attributes_);
 	changeState(STATE_IDLE);
-	
 	
 	
 	//------------TESTING-------------
@@ -82,7 +65,7 @@ void Particle::update()
 			}
 			break;
 		case STATE_IDLE:
-			updateAttributes();
+			evaluateAttributes();
 			break;
 		case STATE_PAIRING:
 			
@@ -92,16 +75,15 @@ void Particle::update()
 	if (radius < radiusBirth && radius > 0.0) {
 		cout << "id" << id << "  state " << state << endl;
 	}
-	acceleration = force / mass;
+	acceleration = force / parameters.mass;
 	velocity += acceleration;
 	
-	if (checkAttribute(ATTR_SPRING_NEXT | ATTR_SPRING_PREV))
-	{
-		velocity *= springDamping;
+	if (attributes.spring_next || attributes.spring_prev) {
+		velocity *= parameters.spring_damping;
 	}
 	
-	velocity *= drag;
-	velocity.limit(PARAM_MAX_SPEED);
+	velocity *= parameters.drag;
+	velocity.limit(CONST_MAX_SPEED);
 	setPosition(getPosition() + velocity);
 	force = ofVec3f(0,0,0);
 }
@@ -128,7 +110,7 @@ void Particle::draw(ofVec3f lookAt)
 	ofRotate(rotationAmount, rotationAngle.x, rotationAngle.y, rotationAngle.z);
 	ofDrawCircle(ofVec3f(0,0,0), radius);
 	
-	if (checkAttribute(ATTR_SPRING_PREV)) {
+	if (attributes.spring_prev) {
 		//ofSetColor(200,0,0);	//rot
 		//ofDrawCircle(getPosition(), radius*0.6);
 	}
@@ -168,7 +150,112 @@ void Particle::draw()
 }
 
 //--------------------------------------------------------------------------------------------
-
+void Particle::evaluateAttributes()
+{
+	//mirror at borders
+	if (attributes.border_xyz) {
+		if (getPosition().x < parameters.border_x_range->x) {
+			force.x += CONST_BORDER_MULT * (parameters.border_x_range->x - getPosition().x);
+		}
+		if (getPosition().x > parameters.border_x_range->y) {
+			force.x += CONST_BORDER_MULT * (parameters.border_x_range->y - getPosition().x);
+		}
+		if (getPosition().y < parameters.border_y_range->x) {
+			force.y += CONST_BORDER_MULT * (parameters.border_y_range->x - getPosition().y);
+		}
+		if (getPosition().y > parameters.border_y_range->y) {
+			force.y += CONST_BORDER_MULT * (parameters.border_y_range->y - getPosition().y);
+		}
+		if (getPosition().z < parameters.border_z_range->x) {
+			force.z += CONST_BORDER_MULT * (parameters.border_z_range->x - getPosition().z);
+		}
+		if (getPosition().z > parameters.border_z_range->y) {
+			force.z += CONST_BORDER_MULT * (parameters.border_z_range->y - getPosition().z);
+		}
+	}
+	
+	//connect to particle if distance is less than  PARAM_CONNECT_DIST
+	if (attributes.connect_next) {
+		int index = getIdClosestParticle(ATTR_CONNECT_NEXT, false, true);
+		if (index != -1) {
+			float dist = particlesPtr->at(index).getPosition().distance(getPosition());
+			if (dist < CONST_CONNECT_DIST) {
+				nextPtr = &(particlesPtr->at(index));
+				nextPtr->prevPtr = &(particlesPtr->at(id));
+				//nextPtr->drag = 0.9999;
+				//nextPtr->mass = 5.0;
+		
+				attributes.connect_next.set(false);
+				//enableAttribute(ATTR_SPRING_NEXT);
+		
+				nextPtr->attributes.spring_prev.set(true);
+				nextPtr->attributes.connect_prev.set(false);
+		
+				nextPtr->changeState(STATE_PAIRING);
+				changeState(STATE_PAIRING);
+			}
+		}
+	}
+	
+	if (0) {	//gravitation
+		float dist = getPosition().distance(nextPtr->getPosition());
+		if (dist < radius*2) {
+			force -= 0.1 * (nextPtr->getPosition() - getPosition());
+		} else if (dist > radius*10) {
+			force += 0.0005 * (nextPtr->getPosition() - getPosition());
+		}
+	}
+	
+	if (attributes.spring_prev) {
+		if (prevPtr != NULL) {
+			force += parameters.spring_stiffness * (prevPtr->getPosition() - getPosition());
+		}
+	}
+	
+	if (attributes.spring_next) {
+		if (nextPtr != NULL) {
+			force += parameters.spring_stiffness * (nextPtr->getPosition() - getPosition());
+		}
+	}
+	
+	//new attribute
+	if (nextPtr != NULL) {
+		//force -= 0.1 / pow(position.distance(nextPtr->position),2) * (position-nextPtr->position).getNormalized();
+	}
+	
+	//new attribute
+	if (nextPtr != NULL) {
+		
+	}
+	
+	if (attributes.collision) {
+		for (unsigned int i=id+1; i<particlesPtr->size(); ++i){
+			float dist = particlesPtr->at(i).getPosition().distance(getPosition());
+			if (dist < particlesPtr->at(i).getRadius() + radius) {
+				force -= parameters.collision_mult * (particlesPtr->at(i).getPosition() - getPosition());
+				particlesPtr->at(i).force += particlesPtr->at(i).parameters.collision_mult * (particlesPtr->at(i).getPosition() - getPosition());
+			}
+			//TODO: eine for schleife für alle attributes die es brauchen
+			//		Attributes nochmal trennen zwischen fremdeinwirkung und selbstwirkung
+		}
+	}
+	if (attributes.attraction_color) {
+		for (unsigned int i=id+1; i<particlesPtr->size(); ++i){
+			//TODO: eine for schleife für alle attributes die es brauchen
+			//		Attributes nochmal trennen zwischen fremdeinwirkung und selbstwirkung
+			double colDiff = abs( color.getHue()-particlesPtr->at(i).color.getHue() );
+			if (colDiff > 255/2) {
+				colDiff -= abs(colDiff-255);
+			}
+			colDiff = max(1.0, colDiff);
+			double forceMag = parameters.color_diff_mult / pow(colDiff,2);
+			
+			ofVec3f dir = getPosition() - particlesPtr->at(i).getPosition();
+			force -= forceMag * dir.getNormalized();
+			particlesPtr->at(i).force += forceMag * dir.getNormalized();
+		}
+	}
+}
 //--------------------------------------------------------write things-----------------------------
 void Particle::changeState(unsigned int newState)
 {
@@ -177,59 +264,34 @@ void Particle::changeState(unsigned int newState)
 	state = newState;
 }
 
-void Particle::setAttributes(int newAttributes)
-{
-	attributes = newAttributes;
-}
-void Particle::enableAttribute(int attribute)
-{
-	attributes |= attribute;
-}
-void Particle::disableAttribute(int attribute)
-{
-	attributes &= ~attribute;
-}
-void Particle::toggleAttribute(int attribute)
-{
-	cout << getBit(attributes) << endl;
-	attributes ^= (-attribute ^ attributes) & (1 << attribute);
-	cout << getBit(attributes) << endl;
-}
-
-
 void Particle::resetLinks()
 {
 	prevPtr = NULL;
 	nextPtr = NULL;
 }
 
-void Particle::setParameters(ofParameterGroup *parameters_)
+void Particle::setParameters(ParticleParameter *parameters_)
 {
-	for (unsigned int i=0; i<parameters_->size(); ++i){
-		if (parameters.getType(i).compare("11ofParameterI7ofVec2fE")){
-			parameters.getVec2f(i).set(parameters_->getVec2f(i));
-		} else if (parameters.getType(i).compare("11ofParameterIfE")){
-			parameters.getFloat(i).set(parameters_->getFloat(i));
+	for (unsigned int i=0; i<parameters_->group.size(); ++i){
+		if (parameters.group.getType(i).compare("11ofParameterI7ofVec2fE")){
+			parameters.group.getVec2f(i).set(parameters_->group.getVec2f(i));
+		} 
+		else if (parameters.group.getType(i).compare("11ofParameterIfE")){
+			parameters.group.getFloat(i).set(parameters_->group.getFloat(i));
 		}
-		}
+	}
 }
-
+void Particle::setAttributes(ParticleAttributes *attributes_)
+{
+	for (unsigned int i=0; i<attributes_->group.size(); ++i){
+		attributes.group.getBool(i).set(attributes_->group.getBool(i));
+	}
+}
 
 //------------------------------------------------------read/get things------------
-bool Particle::checkAttribute(int attribute){
-	return attribute & attributes;
-}
-bool Particle::checkAttributes(int attributes_)
-{
-	bool check = false;
-	for (unsigned int i=0; i<NUM_ATTRIBUTES; ++i){
-		if (attributes_ & (1<<i))
-			check = checkAttribute(1<<i);
-	}
-	return check;
-}
 
-int Particle::getIdClosestParticle(int attributes_, bool checkNextPtr, bool checkPrevPtr){
+
+int Particle::getIdClosestParticle(bool attribute, bool checkNextPtr, bool checkPrevPtr){
 		int index = -1;
 		double dist = 10000.0;
 		for (unsigned int i=0; i<particlesPtr->size(); ++i){			
@@ -256,7 +318,7 @@ int Particle::getIdClosestParticle(int attributes_, bool checkNextPtr, bool chec
 		return index;
 }
 
-double Particle::getDistanceClosestParticle(int attributes_, bool checkNextPtr, bool checkPrevPtr){
+double Particle::getDistanceClosestParticle(ParticleAttributes *attributes_, bool checkNextPtr, bool checkPrevPtr){
 		double dist = 10000.0;
 		for (unsigned int i=0; i<particlesPtr->size(); ++i){
 			if (particlesPtr->at(i).id != id) {
@@ -280,25 +342,12 @@ double Particle::getDistanceClosestParticle(int attributes_, bool checkNextPtr, 
 		return dist;
 }
 
-double Particle::getRadius(){
-	return radius;
-}
-
 int Particle::getState()
 {
 	return state;
 }
-//----------------------------------------------------------------------------------------
 
-string Particle::getBit(int k)
-{
-	string s;
-	for (int i=0; i<20; ++i){
-		if (k & (1 << i)) {
-			s = "1" + s;
-		} else {
-			s = "0" + s;
-		}
-	}
-	return s;
+double Particle::getRadius(){
+	return radius;
 }
+//----------------------------------------------------------------------------------------

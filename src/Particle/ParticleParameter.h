@@ -8,24 +8,23 @@ class ParticleParameter{
 	public:
 		ParticleParameter();
 		
-		ofParameterGroup attributes_bool;
-		ofParameterGroup parameter_double;
+		ofParameterGroup group;
+		ofParameter<float> color_diff_mult;
+		ofParameter<float> collision_mult;
 		
-		
-	private:
-
-		
-		ofParameter<float> PARAM_COLOR_DIFF_MULT;
-		ofParameter<float> PARAM_COLLISION_MULT;
-		
-		ofParameter<ofVec2f> PARAM_BORDER_X;
-		ofParameter<ofVec2f> PARAM_BORDER_Y;
-		ofParameter<ofVec2f> PARAM_BORDER_Z;
+		ofParameter<ofVec2f> border_x_range;
+		ofParameter<ofVec2f> border_y_range;
+		ofParameter<ofVec2f> border_z_range;
 		
 		ofParameter<float> drag;
 		ofParameter<float> mass;
 		
-		ofParameter<float> springStiffness;
-		ofParameter<float> springDamping;
+		ofParameter<float> spring_stiffness;
+		ofParameter<float> spring_damping;
+		
+	private:
+
+		
+
 	
 };
