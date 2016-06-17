@@ -16,6 +16,7 @@ string ofApp::getBit(int k)
 	}
 	return s;
 }
+
 //--------------------------------------------------------------
 void ofApp::setup()
 {
@@ -31,7 +32,6 @@ void ofApp::setup()
 	
 	//-------------------------------------------------------------------------GUI----------
 	
-	
 	but_overwriteAttributes.addListener(this, &ofApp::overwriteAttributes);
 	but_overwriteParameters.addListener(this, &ofApp::overwriteParameters);
 
@@ -39,7 +39,10 @@ void ofApp::setup()
 	Particle particle;
 	
 	guiAttributes.setup(nextParticle.attributes.group);
+	guiAttributes.add(but_overwriteAttributes.set("Overwrite"));
 	guiParameters.setup(nextParticle.parameters.group);
+	guiAttributes.add(but_overwriteParameter.set("Overwrite"));
+	
 	//gui.setup();
 	
 		

@@ -2,6 +2,8 @@
 
 ParticleAttributes::ParticleAttributes()
 {
+	border_xyz
+	
 	group.add(border_xyz.set("Border XYZ",				true));
 	group.add(connect_next.set("Connect Next",			false));
 	group.add(connect_prev.set("Connect Prev",			false));

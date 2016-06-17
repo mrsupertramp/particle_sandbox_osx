@@ -2,7 +2,7 @@
 
 
 ParticleParameter::ParticleParameter()
-{
+{	
 	
 	group.setName("Particles Parameters");
 	
