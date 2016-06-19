@@ -29,6 +29,7 @@ COPYRIGHT ENRICO STEINFELD. ALL RIGHTS RESERVED
 #define CONST_CONNECT_DIST 		30		//TODO: Umbenennen
 #define CONST_MAX_SPEED 		10		//TODO: Umbenennen
 #define CONST_BORDER_MULT 		0.4		//TODO: Umbenennen
+#define CONST_DRAW_LINE_DIST	100
 
 class Particle : public ofNode {
 	public:
@@ -54,12 +55,15 @@ class Particle : public ofNode {
 		ParticleParameter parameters;
 		ParticleAttributes attributes;
 		
+		void setParameters(ParticleParameter *parameters_);
+		void setAttributes(ParticleAttributes *attributes_);
+		
 		ofColor color;
+		
+		bool isDead = false;
 		
 		string getBit(int k);
 		
-		void setParameters(ParticleParameter *parameters_);
-		void setAttributes(ParticleAttributes *attributes_);
 	
 	private:
 		void evaluateAttributes();

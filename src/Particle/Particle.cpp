@@ -66,6 +66,9 @@ void Particle::update()
 				changeState(STATE_IDLE);
 			}
 			break;
+		case STATE_DEATH:
+			
+			break;
 		case STATE_IDLE:
 			evaluateAttributes();
 			break;
@@ -179,7 +182,7 @@ void Particle::evaluateAttributes()
 	//connect to particle if distance is less than  PARAM_CONNECT_DIST
 	if (attributes.connect_next) {
 		int index = getIdClosestParticle(ATTR_CONNECT_PREV, false, true);
-		cout << index << endl;
+		//cout << index << endl;
 		if (index != -1) {
 			float dist = particlesPtr->at(index).getPosition().distance(getPosition());
 			if (dist < CONST_CONNECT_DIST) {
@@ -189,7 +192,6 @@ void Particle::evaluateAttributes()
 				//nextPtr->mass = 5.0;
 		
 				attributes.connect_next.set(false);
-				cout << attributes.connect_next << endl;
 		
 				nextPtr->attributes.spring_prev.set(true);
 				nextPtr->attributes.connect_prev.set(false);
@@ -269,6 +271,10 @@ void Particle::changeState(unsigned int newState)
 
 void Particle::resetLinks()
 {
+	if (nextPtr != NULL)
+		nextPtr->prevPtr = NULL;
+	if (prevPtr != NULL)
+		prevPtr->nextPtr = NULL;
 	prevPtr = NULL;
 	nextPtr = NULL;
 }
@@ -296,7 +302,6 @@ void Particle::setAttributes(ParticleAttributes *attributes_)
 
 //------------------------------------------------------read/get things------------
 
-
 int Particle::getIdClosestParticle(int attributes_, bool checkNextPtr, bool checkPrevPtr){
 		int index = -1;
 		double dist = 10000.0;
@@ -304,6 +309,7 @@ int Particle::getIdClosestParticle(int attributes_, bool checkNextPtr, bool chec
 			if (particlesPtr->at(i).id != id) {				
 				bool checkDist = true;
 			    checkDist &= particlesPtr->at(i).attributes.checkAttributes(attributes_);
+				cout << checkDist << endl;
 			    if (checkNextPtr) {
 			    	checkDist &= (particlesPtr->at(i).nextPtr == NULL);
 			    }
@@ -330,6 +336,7 @@ double Particle::getDistanceClosestParticle(int attributes_, bool checkNextPtr, 
 			if (particlesPtr->at(i).id != id) {
 				bool checkDist = true;
 			    checkDist &= particlesPtr->at(i).attributes.checkAttributes(attributes_);
+				//cout << checkDist << endl;
 			    if (checkNextPtr) {
 			    	checkDist &= (particlesPtr->at(i).nextPtr == NULL);
 			    }

@@ -30,6 +30,8 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 	
 		void generateParticle(ofVec3f pos, ofVec3f vel);
+		void eliminateParticle(int index);
+		
 		//void generateParticle(ofVec3f pos, ofVec3f vel, int attributes);
 		vector <Particle> particles;
 		//Particle nextParticle;

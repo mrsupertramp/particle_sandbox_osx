@@ -11,7 +11,6 @@ ParticleAttributes::ParticleAttributes()
 	collision.addListener(this, &ParticleAttributes::set_collision);
 	attraction_color.addListener(this, &ParticleAttributes::set_attraction_color);
 	
-		
 	group.add(border_xyz.set("Border XYZ",				true));
 	group.add(connect_next.set("Connect Next",			false));
 	group.add(connect_prev.set("Connect Prev",			false));
@@ -30,7 +29,7 @@ bool ParticleAttributes::checkAttributes(int attributes_)
 	bool check = false;
 	for (unsigned int i=0; i<26; ++i){
 		if (attributes_ & (1<<i))
-			check = checkAttribute(1<<i);
+			check |= checkAttribute(1<<i);
 	}
 	return check;
 }

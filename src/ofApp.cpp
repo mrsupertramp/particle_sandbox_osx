@@ -29,7 +29,6 @@ void ofApp::setup()
 	
 	staticParticles.reserve(2000);
 	
-	
 	//-------------------------------------------------------------------------GUI----------
 	
 	but_overwriteAttributes.addListener(this, &ofApp::overwriteAttributes);
@@ -84,6 +83,8 @@ void ofApp::update()
 {
 	for (unsigned int i=0; i<particles.size(); ++i){
 		particles[i].update();
+		if (particles[i].isDead)
+			particles.erase(particles.begin() + i);
 	}
 }
 
@@ -109,7 +110,7 @@ void ofApp::draw()
 	for (unsigned int i=0 ; i<particles.size(); ++i){
 		particles[i].draw(camera.getPosition());
 	}
-
+	
 	//ofDrawAxis(32);
 	//ofPopMatrix();
 	camera.end();
@@ -125,8 +126,6 @@ void ofApp::draw()
 		ofDrawBitmapString("framerate: " + ofToString(ofGetFrameRate()),ofGetWidth() - 160, 20);
 	}
 }
-
-
 //--------------------------------------------------------------
 
 
@@ -139,20 +138,26 @@ void ofApp::overwriteAttributes()
 		particles[i].setAttributes(&(nextParticle.attributes));
 	}
 }
+
 void ofApp::overwriteParameters()
 {
 	for (unsigned int i=0; i<particles.size(); ++i){
 		particles[i].setParameters(&(nextParticle.parameters));
 	}
 }
+
 void ofApp::generateParticle(ofVec3f pos, ofVec3f vel)
 {	
 	particles.push_back(Particle(pos, vel, &(nextParticle.parameters), &(nextParticle.attributes), &particles));
 }
 
+void ofApp::eliminateParticle(int index){
+	particles[index].resetLinks();
+	particles[index].isDead = true;
+}
+
 void ofApp::drawBorders()
 {
-	
 	ofPushMatrix();
 	//ofTranslate(paraBorderX->x,paraBorderY->x,paraBorderZ->x);
 	//ofBoxPrimitive box(paraBorderX->y-paraBorderX->x, paraBorderY->y-paraBorderY->x, paraBorderZ->y-paraBorderZ->x);
@@ -178,7 +183,6 @@ void ofApp::drawBorders()
 
 //---------------------------------------------------------------------------
 
-
 void ofApp::keyPressed(int key)
 {
 
@@ -194,16 +198,14 @@ void ofApp::keyPressed(int key)
 		hideGui = !hideGui;
 	} else if (key == 's') {
 		hideStats = !hideStats;
+	} else if (key == 'k') {
+		if (particles.size() > 0)
+	   		eliminateParticle(0);
 	} else {
 		generateParticle(	ofVec3f(ofGetMouseX()-ofGetWidth()/2, ofGetMouseY()-ofGetHeight()/2, ofRandomf()*100), 
-							ofVec3f(ofRandomf()*2,ofRandomf()*2,ofRandomf()*2));
-							
+							ofVec3f(ofRandomf()*2, ofRandomf()*2, ofRandomf()*2));
 	}
-
 }
-
-
-
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){

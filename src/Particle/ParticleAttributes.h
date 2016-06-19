@@ -25,7 +25,6 @@
 #define ATTR_DRAW_LINE_PREV		1 << 19		//draw line to prev particle
 
 
-
 class ParticleAttributes{
 	public:
 		ParticleAttributes();
@@ -39,6 +38,7 @@ class ParticleAttributes{
 		ofParameter<bool> spring_prev;
 		ofParameter<bool> collision;
 		ofParameter<bool> attraction_color;
+		ofParameter<bool> draw_line_dist;
 		
 		int bits;
 		

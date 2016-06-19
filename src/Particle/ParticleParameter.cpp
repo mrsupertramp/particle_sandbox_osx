@@ -14,7 +14,7 @@ ParticleParameter::ParticleParameter()
 	group.add(border_z_range.set("borderZ", ofVec2f(-200,200), ofVec2f(-1000,-1000), ofVec3f(1000,1000)));
 
 	group.add(drag.set("drag", 1.0, 0.0, 1.0));
-	group.add(mass.set("mass", 1.0, 0.1, 4.0));
+	group.add(mass.set("mass", 1.0, 0.01, 4.0));
 
 	group.add(spring_stiffness.set("springStiffness", 1.0, 0.0, 4.0));
 	group.add(spring_damping.set("springDamping", 0.1, 0.0, 1.0));
