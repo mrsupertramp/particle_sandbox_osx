@@ -8,7 +8,8 @@ Particle::Particle()
 {
 	setPosition(ofVec3f(0,0,0));
 	velocity = ofVec3f(0,0,0);
-	
+	prevPtr = NULL;
+	nextPtr = NULL;
 }
 
 Particle::Particle(ofVec3f pos_, ofVec3f vel_, ParticleParameter *parameters_, ParticleAttributes *attributes_, vector <Particle> * pptr)
@@ -26,6 +27,7 @@ Particle::Particle(ofVec3f pos_, ofVec3f vel_, ParticleParameter *parameters_, P
 	
 	setParameters(parameters_);
 	setAttributes(attributes_);
+		
 	changeState(STATE_IDLE);
 	
 	
@@ -176,7 +178,8 @@ void Particle::evaluateAttributes()
 	
 	//connect to particle if distance is less than  PARAM_CONNECT_DIST
 	if (attributes.connect_next) {
-		int index = getIdClosestParticle(ATTR_CONNECT_NEXT, false, true);
+		int index = getIdClosestParticle(ATTR_CONNECT_PREV, false, true);
+		cout << index << endl;
 		if (index != -1) {
 			float dist = particlesPtr->at(index).getPosition().distance(getPosition());
 			if (dist < CONST_CONNECT_DIST) {
@@ -186,7 +189,7 @@ void Particle::evaluateAttributes()
 				//nextPtr->mass = 5.0;
 		
 				attributes.connect_next.set(false);
-				//enableAttribute(ATTR_SPRING_NEXT);
+				cout << attributes.connect_next << endl;
 		
 				nextPtr->attributes.spring_prev.set(true);
 				nextPtr->attributes.connect_prev.set(false);
@@ -272,7 +275,7 @@ void Particle::resetLinks()
 
 void Particle::setParameters(ParticleParameter *parameters_)
 {
-	for (unsigned int i=0; i<parameters_->group.size(); ++i){
+	for (unsigned int i=0; i<parameters.group.size(); ++i){
 		if (parameters.group.getType(i).compare("11ofParameterI7ofVec2fE")){
 			parameters.group.getVec2f(i).set(parameters_->group.getVec2f(i));
 		} 
@@ -283,8 +286,11 @@ void Particle::setParameters(ParticleParameter *parameters_)
 }
 void Particle::setAttributes(ParticleAttributes *attributes_)
 {
-	for (unsigned int i=0; i<attributes_->group.size(); ++i){
-		attributes.group.getBool(i).set(attributes_->group.getBool(i));
+	if (attributes_ != NULL) {		
+		for (unsigned int i=0; i<attributes.group.size(); ++i){
+			attributes.group.getBool(i) = attributes_->group.getBool(i);//TODO: segmentation faul
+		}
+		attributes.bits = attributes_->bits;
 	}
 }
 

@@ -2,8 +2,16 @@
 
 ParticleAttributes::ParticleAttributes()
 {
-	border_xyz
+	border_xyz.addListener(this, &ParticleAttributes::set_border_xyz);
 	
+	connect_next.addListener(this, &ParticleAttributes::set_connect_next);
+	connect_prev.addListener(this, &ParticleAttributes::set_connect_prev);
+	spring_next.addListener(this, &ParticleAttributes::set_spring_next);
+	spring_prev.addListener(this, &ParticleAttributes::set_spring_prev);
+	collision.addListener(this, &ParticleAttributes::set_collision);
+	attraction_color.addListener(this, &ParticleAttributes::set_attraction_color);
+	
+		
 	group.add(border_xyz.set("Border XYZ",				true));
 	group.add(connect_next.set("Connect Next",			false));
 	group.add(connect_prev.set("Connect Prev",			false));
@@ -27,7 +35,43 @@ bool ParticleAttributes::checkAttributes(int attributes_)
 	return check;
 }
 
-void ParticleAttributes::setBits()
+void ParticleAttributes::set_border_xyz(bool &b_)
 {
-	
+	bits |= b_ << ATTR_BORDER_XYZ;
+}
+void ParticleAttributes::set_border_circle(bool &b_)
+{
+	bits |= b_ << ATTR_BORDER_CIRCLE;
+}
+void ParticleAttributes::set_connect_next(bool &b_)
+{
+	bits |= b_ << ATTR_CONNECT_NEXT;
+}
+void ParticleAttributes::set_connect_prev(bool &b_)
+{
+	bits |= b_ << ATTR_CONNECT_PREV;
+}
+void ParticleAttributes::set_spring_next(bool &b_)
+{
+	bits |= b_ << ATTR_SPRING_NEXT;
+}
+void ParticleAttributes::set_spring_prev(bool &b_)
+{
+	bits |= b_ << ATTR_SPRING_PREV;
+}
+void ParticleAttributes::set_collision(bool &b_)
+{
+	bits |= b_ << ATTR_COLLISION;
+}
+void ParticleAttributes::set_attraction_color(bool &b_)
+{
+	bits |= b_ << ATTR_ATTRACTION_COLOR;
+}
+void ParticleAttributes::set_draw_line_dist(bool &b_)
+{
+	bits |= b_ << ATTR_DRAW_LINE_DIST;
+}
+void ParticleAttributes::set_draw_line_next(bool &b_)
+{
+	bits |= b_ << ATTR_DRAW_LINE_NEXT;
 }

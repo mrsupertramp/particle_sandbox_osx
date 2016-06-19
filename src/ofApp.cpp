@@ -38,10 +38,11 @@ void ofApp::setup()
 	//nextParticle = new Particle();
 	Particle particle;
 	
-	guiAttributes.setup(nextParticle.attributes.group);
-	guiAttributes.add(but_overwriteAttributes.set("Overwrite"));
-	guiParameters.setup(nextParticle.parameters.group);
-	guiAttributes.add(but_overwriteParameter.set("Overwrite"));
+	guiAttributes.setup(nextParticle.attributes.group, "Attributes", 5,5);
+	guiAttributes.add(but_overwriteAttributes.setup("Overwrite"));
+	
+	guiParameters.setup(nextParticle.parameters.group, "Parameters", 5, 200);
+	guiParameters.add(but_overwriteParameters.setup("Overwrite"));
 	
 	//gui.setup();
 	
@@ -186,6 +187,9 @@ void ofApp::keyPressed(int key)
 	} else if (key == '2') {
 	} else if (key == '3') {
 	} else if (key == '4') {
+	} else if (key == ' ') {
+		overwriteAttributes();
+		overwriteParameters();
 	} else if (key == 'h') {
 		hideGui = !hideGui;
 	} else if (key == 's') {
