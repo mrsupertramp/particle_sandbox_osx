@@ -70,10 +70,9 @@ void ofApp::setup()
 		staticParticles[i].color = ofColor(0, 50);
 		staticParticles[i].setRadius(6);
 		*/
-	}
-	
+	}	
 	//----------------------------------------------------------
-	
+
 }
 
 //---------------------------------------------------------------------------------------
@@ -187,7 +186,7 @@ void ofApp::keyPressed(int key)
 {
 
 	if (key == '1') {
-
+		
 	} else if (key == '2') {
 	} else if (key == '3') {
 	} else if (key == '4') {
@@ -204,6 +203,7 @@ void ofApp::keyPressed(int key)
 	} else {
 		generateParticle(	ofVec3f(ofGetMouseX()-ofGetWidth()/2, ofGetMouseY()-ofGetHeight()/2, ofRandomf()*100), 
 							ofVec3f(ofRandomf()*2, ofRandomf()*2, ofRandomf()*2));
+		cout << getBit(particles[particles.size()-1].attributes.bits) << endl;
 	}
 }
 

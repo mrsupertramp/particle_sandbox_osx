@@ -11,13 +11,14 @@ ParticleAttributes::ParticleAttributes()
 	collision.addListener(this, &ParticleAttributes::set_collision);
 	attraction_color.addListener(this, &ParticleAttributes::set_attraction_color);
 	
-	group.add(border_xyz.set("Border XYZ",				true));
+	group.add(border_xyz.set("Border XYZ",				false));
 	group.add(connect_next.set("Connect Next",			false));
 	group.add(connect_prev.set("Connect Prev",			false));
 	group.add(spring_next.set("Spring Next",			false));
 	group.add(spring_prev.set("Spring Prev",			false));
 	group.add(collision.set("Collision",				false));
 	group.add(attraction_color.set("Attraction Color",	false));
+	bits = 0;
 }
 
 bool ParticleAttributes::checkAttribute(int attribute){
@@ -26,10 +27,10 @@ bool ParticleAttributes::checkAttribute(int attribute){
 
 bool ParticleAttributes::checkAttributes(int attributes_)
 {
-	bool check = false;
+	bool check = true;
 	for (unsigned int i=0; i<26; ++i){
 		if (attributes_ & (1<<i))
-			check |= checkAttribute(1<<i);
+			check &= checkAttribute(1<<i);
 	}
 	return check;
 }
@@ -44,7 +45,7 @@ void ParticleAttributes::set_border_circle(bool &b_)
 }
 void ParticleAttributes::set_connect_next(bool &b_)
 {
-	bits |= b_ << ATTR_CONNECT_NEXT;
+	bits |= b_ << ATTR_CONNECT_NEXT;	
 }
 void ParticleAttributes::set_connect_prev(bool &b_)
 {

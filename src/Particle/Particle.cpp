@@ -10,6 +10,7 @@ Particle::Particle()
 	velocity = ofVec3f(0,0,0);
 	prevPtr = NULL;
 	nextPtr = NULL;
+	attributes.bits = 0;
 }
 
 Particle::Particle(ofVec3f pos_, ofVec3f vel_, ParticleParameter *parameters_, ParticleAttributes *attributes_, vector <Particle> * pptr)
@@ -24,13 +25,9 @@ Particle::Particle(ofVec3f pos_, ofVec3f vel_, ParticleParameter *parameters_, P
 	
 	radius = 0;
 	
-	
 	setParameters(parameters_);
 	setAttributes(attributes_);
-		
 	changeState(STATE_IDLE);
-	
-	
 	//------------TESTING-------------
 	radiusBirth = 9;
 	radius = 9;
@@ -181,6 +178,7 @@ void Particle::evaluateAttributes()
 	
 	//connect to particle if distance is less than  PARAM_CONNECT_DIST
 	if (attributes.connect_next) {
+		
 		int index = getIdClosestParticle(ATTR_CONNECT_PREV, false, true);
 		//cout << index << endl;
 		if (index != -1) {
@@ -290,6 +288,7 @@ void Particle::setParameters(ParticleParameter *parameters_)
 		}
 	}
 }
+
 void Particle::setAttributes(ParticleAttributes *attributes_)
 {
 	if (attributes_ != NULL) {		
@@ -309,7 +308,10 @@ int Particle::getIdClosestParticle(int attributes_, bool checkNextPtr, bool chec
 			if (particlesPtr->at(i).id != id) {				
 				bool checkDist = true;
 			    checkDist &= particlesPtr->at(i).attributes.checkAttributes(attributes_);
-				cout << checkDist << endl;
+				//printBits(attributes_);
+				//cout << "particle:  ";
+				//printBits(attributes.bits);
+				//cout << checkDist << endl;
 			    if (checkNextPtr) {
 			    	checkDist &= (particlesPtr->at(i).nextPtr == NULL);
 			    }
@@ -362,5 +364,18 @@ int Particle::getState()
 
 double Particle::getRadius(){
 	return radius;
+}
+
+void Particle::printBits(int k)
+{
+	string s;
+	for (int i=0; i<20; ++i){
+		if (k & (1 << i)) {
+			s = "1" + s;
+		} else {
+			s = "0" + s;
+		}
+	}
+	cout << s << endl;
 }
 //----------------------------------------------------------------------------------------

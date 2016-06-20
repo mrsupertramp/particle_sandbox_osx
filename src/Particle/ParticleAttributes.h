@@ -40,7 +40,7 @@ class ParticleAttributes{
 		ofParameter<bool> attraction_color;
 		ofParameter<bool> draw_line_dist;
 		
-		int bits;
+		unsigned int bits = 0;
 		
 		bool checkAttribute(int attribute);
 		bool checkAttributes(int bits_);

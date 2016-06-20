@@ -62,7 +62,7 @@ class Particle : public ofNode {
 		
 		bool isDead = false;
 		
-		string getBit(int k);
+		void printBits(int k);
 		
 	
 	private:
