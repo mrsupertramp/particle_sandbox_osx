@@ -37,41 +37,81 @@ bool ParticleAttributes::checkAttributes(int attributes_)
 
 void ParticleAttributes::set_border_xyz(bool &b_)
 {
-	bits |= b_ << ATTR_BORDER_XYZ;
+	if (b_) {
+		bits |= 1 << ATTR_BORDER_XYZ;
+	} else {
+		bits &= ~(1 << ATTR_BORDER_XYZ);
+	}
 }
 void ParticleAttributes::set_border_circle(bool &b_)
 {
-	bits |= b_ << ATTR_BORDER_CIRCLE;
+	if (b_) {
+		bits |= 1 << ATTR_BORDER_CIRCLE;
+	} else {
+		bits &= ~(1 << ATTR_BORDER_CIRCLE);
+	}
 }
 void ParticleAttributes::set_connect_next(bool &b_)
 {
-	bits |= b_ << ATTR_CONNECT_NEXT;	
+	if (b_) {
+		bits |= 1 << ATTR_CONNECT_NEXT;
+	} else {
+		bits &= ~(1 << ATTR_CONNECT_NEXT);
+	}
 }
 void ParticleAttributes::set_connect_prev(bool &b_)
 {
-	bits |= b_ << ATTR_CONNECT_PREV;
+	if (b_) {
+		bits |= 1 << ATTR_CONNECT_PREV;
+	} else {
+		bits &= ~(1 << ATTR_CONNECT_PREV);
+	}
 }
 void ParticleAttributes::set_spring_next(bool &b_)
 {
-	bits |= b_ << ATTR_SPRING_NEXT;
+	if (b_) {
+		bits |= 1 << ATTR_SPRING_NEXT;
+	} else {
+		bits &= ~(1 << ATTR_SPRING_NEXT);
+	}
 }
 void ParticleAttributes::set_spring_prev(bool &b_)
 {
-	bits |= b_ << ATTR_SPRING_PREV;
+	if (b_) {
+		bits |= 1 << ATTR_SPRING_PREV;
+	} else {
+		bits &= ~(1 << ATTR_SPRING_PREV);
+	}
 }
 void ParticleAttributes::set_collision(bool &b_)
 {
-	bits |= b_ << ATTR_COLLISION;
+	if (b_) {
+		bits |= 1 << ATTR_COLLISION;
+	} else {
+		bits &= ~(1 << ATTR_COLLISION);
+	}
 }
 void ParticleAttributes::set_attraction_color(bool &b_)
 {
-	bits |= b_ << ATTR_ATTRACTION_COLOR;
+	if (b_) {
+		bits |= 1 << ATTR_ATTRACTION_COLOR;
+	} else {
+		bits &= ~(1 << ATTR_ATTRACTION_COLOR);
+	}
 }
 void ParticleAttributes::set_draw_line_dist(bool &b_)
 {
-	bits |= b_ << ATTR_DRAW_LINE_DIST;
+	if (b_) {
+		bits |= 1 << ATTR_DRAW_LINE_DIST;
+	} else {
+		bits &= ~(1 << ATTR_DRAW_LINE_DIST);
+	}
 }
 void ParticleAttributes::set_draw_line_next(bool &b_)
 {
-	bits |= b_ << ATTR_DRAW_LINE_NEXT;
+	if (b_) {
+		bits |= 1 << ATTR_DRAW_LINE_NEXT;
+	} else {
+		bits &= ~(1 << ATTR_DRAW_LINE_NEXT);
+	}
 }

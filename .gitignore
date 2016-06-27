@@ -1,0 +1,7 @@
+Makefile
+Project.xcconfig
+bin/
+config.make
+obj/
+openFrameworks-Info.plist
+particle_samdbox.xcodeproj/
